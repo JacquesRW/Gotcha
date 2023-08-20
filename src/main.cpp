@@ -2,7 +2,8 @@
 
 #include "board.hpp"
 
-void main()
+int main()
 {
-    std::cout << "Hello World!" << std::endl;
+    Tile tile{};
+    std::cout << tile.index() << std::endl;
 }
