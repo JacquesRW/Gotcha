@@ -12,7 +12,7 @@ enum struct Colour : std::uint8_t
 
 [[nodiscard]] constexpr auto flipColour(Colour colour)
 {
-    return static_cast<Colour>(static_cast<std::uint8_t>(colour) ^ 1);
+    return static_cast<Colour>(!static_cast<std::uint8_t>(colour));
 }
 
 struct Vec4
@@ -48,6 +48,11 @@ class Tile
         constexpr Tile()
         {
             tile = 1024;
+        }
+
+        constexpr Tile(std::uint16_t x, std::uint16_t y, std::uint16_t size)
+        {
+            tile = size * y + x;
         }
 
         [[nodiscard]] constexpr auto index() const { return tile; }
@@ -152,7 +157,7 @@ class LinkHead
             const auto index = tile.index();
             const auto prev = tiles[index].prev;
             const auto next = tiles[index].next;
-            tiles[index] = LinkNode(1024);
+            tiles[index] = LinkNode{};
 
             if (prev.isNull())
                 first = next;

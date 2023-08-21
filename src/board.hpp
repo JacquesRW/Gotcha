@@ -42,7 +42,7 @@ class BoardState
             tiles[tile.index()] = LinkNode(groupId);
             auto newGroup = Group(tile, stm);
 
-            Vec4 adjEnemies;
+            Vec4 adjEnemies{};
             const auto dirs = tile.getAdjacent(size);
 
             for (auto i = 0; i < dirs.length; i++)
@@ -78,8 +78,7 @@ class BoardState
 
             // Step 3: Commit suicide if appropriate.
             bool wasSuicide = false;
-            Group& newGroupRef = groups[groupId];
-            if (newGroupRef.liberties <= 0)
+            if (groups[groupId].liberties <= 0)
             {
                 killGroup(groupId);
                 wasSuicide = true;
@@ -96,7 +95,7 @@ class BoardState
             Tile tile = dying.stones.first;
             while (!tile.isNull())
             {
-                Vec4 adj;
+                Vec4 adj{};
                 const auto dirs = tile.getAdjacent(size);
 
                 for (auto i = 0; i < dirs.length; i++)
@@ -122,7 +121,8 @@ class BoardState
 
         void display()
         {
-            std::cout << "Board:" << std::endl;
+            const auto side = static_cast<std::uint16_t>(stm) ? "White" : "Black";
+            std::cout << "\nBoard: " << side << " to play" << std::endl;
             for (auto i = 0; i < size; i++)
             {
                 for (auto j = 0; j < size; j++)
