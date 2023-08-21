@@ -9,21 +9,19 @@ struct Group
 {
     Group(Tile tile, Colour colour)
     {
-        belongTo = colour;
+        belongsTo = colour;
         stones = LinkHead(tile, tile, 1);
     }
 
     void join(Group& other, std::vector<LinkNode>& tiles)
     {
-        libertyUpperBound += other.libertyUpperBound - 1;
+        liberties += other.liberties - 1;
         stones.join(other.stones, tiles);
     }
 
-    Colour belongTo;
+    Colour belongsTo;
     LinkHead stones;
-    LinkNode deadLink;
-    std::uint16_t libertyUpperBound;
-    std::uint64_t hash;
+    std::uint16_t liberties;
 };
 
 class BoardState
@@ -35,52 +33,91 @@ class BoardState
             tiles = std::vector<LinkNode>(size * size);
         }
 
-        [[nodiscard]] constexpr auto getHash() const { return hash; }
-
-        void placeStone(Tile tile)
+        bool placeStone(Tile tile)
         {
             // Step 1: Place a stone and resolve new groupings.
-
-            // Remove stone from empty.
             empty.remove(tile, tiles);
 
-            // Add stone as new group
             const auto groupId = groups.size();
             tiles[tile.index()] = LinkNode(groupId);
             auto newGroup = Group(tile, stm);
 
-            // Iterate over directions
+            Vec4 adjEnemies;
             const auto dirs = tile.getAdjacent(size);
+
             for (auto i = 0; i < dirs.length; i++)
             {
-                const auto offset = dirs.dirs[i];
+                const auto offset = dirs.elements[i];
                 const auto adjTile = Tile(tile.index() + offset);
                 const auto adjId = tiles[adjTile.index()].group;
 
-                // Non-empty adjacent tile
                 if (adjId != 1024)
                 {
                     Group& adjGroup = groups[adjId];
-                    // Deprive a different coloured group of a liberty
-                    if (adjGroup.belongTo != stm)
-                        adjGroup.libertyUpperBound--;
-                    // Join onto own group
-                    else
+                    if (adjGroup.belongsTo != stm && !adjEnemies.contains(adjId))
                     {
-                        newGroup.join(adjGroup, tiles);
+                        adjGroup.liberties--;
+                        adjEnemies.push(adjId);
                     }
+                    else
+                        newGroup.join(adjGroup, tiles);
                 }
-                // Empty adjacent tile is a free liberty
                 else
-                {
-                    newGroup.libertyUpperBound++;
-                }
+                    newGroup.liberties++;
             }
 
-            // push to list of groups
             groups.push_back(newGroup);
 
+            // Step 2: Capture surrounded enemy stones.
+            for (auto i = 0; i < adjEnemies.length; i++)
+            {
+                const auto adjId = adjEnemies.elements[i];
+                if (groups[adjId].liberties <= 0)
+                    killGroup(adjId);
+            }
+
+            // Step 3: Commit suicide if appropriate.
+            bool wasSuicide = false;
+            Group& newGroupRef = groups[groupId];
+            if (newGroupRef.liberties <= 0)
+            {
+                killGroup(groupId);
+                wasSuicide = true;
+            }
+
             stm = flipColour(stm);
+
+            return wasSuicide;
+        }
+
+        void killGroup(std::uint16_t groupId)
+        {
+            Group& dying = groups[groupId];
+            Tile tile = dying.stones.first;
+            while (!tile.isNull())
+            {
+                Vec4 adj;
+                const auto dirs = tile.getAdjacent(size);
+
+                for (auto i = 0; i < dirs.length; i++)
+                {
+                    const auto adjId = tiles[tile.index() + dirs.elements[i]].group;
+
+                    // this condition shouldn't trigger!
+                    if (adjId == 1024)
+                        continue;
+
+                    if (!adj.contains(adjId))
+                    {
+                        groups[adjId].liberties++;
+                        adj.push(adjId);
+                    }
+                }
+
+                tile = tiles[tile.index()].next;
+            }
+
+            empty.join(dying.stones, tiles);
         }
 
         void display()
@@ -95,7 +132,8 @@ class BoardState
                         std::cout << ". ";
                     else
                     {
-                        const char stone = groups[tileGroup].belongTo == Colour::Black ? 'x' : 'o';
+                        const auto side = groups[tileGroup].belongsTo;
+                        const char stone = side == Colour::Black ? 'x' : 'o';
                         std::cout << stone << ' ';
                     }
                 }
@@ -106,10 +144,8 @@ class BoardState
     private:
         Colour stm;
         LinkHead empty;
-        LinkHead dead;
         std::uint16_t size;
         std::vector<LinkNode> tiles;
         std::vector<Group> groups;
-        std::uint64_t hash;
 };
 

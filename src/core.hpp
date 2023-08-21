@@ -15,15 +15,25 @@ enum struct Colour : std::uint8_t
     return static_cast<Colour>(static_cast<std::uint8_t>(colour) ^ 1);
 }
 
-struct Directions
+struct Vec4
 {
-    std::array<uint16_t, 4> dirs;
+    std::array<uint16_t, 4> elements;
     std::uint16_t length;
 
-    constexpr void push(std::uint16_t dir)
+    constexpr void push(std::uint16_t element)
     {
-        dirs[length] = dir;
+        elements[length] = element;
         length++;
+    }
+
+    constexpr auto contains(std::uint16_t element)
+    {
+        for (auto i = 0; i < length; i++)
+        {
+            if (element == elements[i])
+                return true;
+        }
+        return false;
     }
 };
 
@@ -45,7 +55,7 @@ class Tile
 
         [[nodiscard]] constexpr auto getAdjacent(std::uint16_t size) const
         {
-            auto adj = Directions{};
+            auto adj = Vec4{};
 
             if ((tile % size) > 0)
                 adj.push(static_cast<std::uint16_t>(-1));
@@ -77,7 +87,9 @@ struct LinkNode
         group = groupId;
     }
 
-    LinkNode() {}
+    LinkNode() {
+        group = 1024;
+    }
 };
 
 class LinkHead
@@ -100,23 +112,24 @@ class LinkHead
             length = 0;
         }
 
-
         [[nodiscard]] constexpr auto len() const { return length; }
         [[nodiscard]] constexpr auto isEmpty() const { return length == 0; }
 
+        void setNewId(std::uint16_t newGroupId, std::vector<LinkNode>& tiles)
+        {
+            Tile tile = first;
+            while (!tile.isNull())
+            {
+                tiles[tile.index()].group = newGroupId;
+                tile = tiles[tile.index()].next;
+            }
+        }
+
         void join(LinkHead& other, std::vector<LinkNode>& tiles)
         {
-            // overwrite group IDs, assuming first group is smaller
-            // in general, for speed
-            const auto newGroupId = tiles[other.first.index()].group;
-
-            tiles[first.index()].group = newGroupId;
-            auto node = tiles[first.index()];
-            while (!node.next.isNull())
-            {
-                node.group = newGroupId;
-                node = tiles[node.next.index()];
-            }
+            // overwrite group IDs
+            const auto newGroupId = tiles[first.index()].group;
+            other.setNewId(newGroupId, tiles);
 
             // join up the groups
             if (!other.last.isNull())
