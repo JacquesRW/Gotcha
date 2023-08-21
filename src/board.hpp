@@ -60,9 +60,7 @@ class BoardState
 
             for (auto i = 0; i < dirs.length; i++)
             {
-                const auto offset = dirs.elements[i];
-                const auto adjTile = Tile(tile.index() + offset);
-                const auto adjId = tiles[adjTile.index()].group;
+                const auto adjId = tiles[tile.index() + dirs.elements[i]].group;
 
                 if (adjId != 1024)
                 {
@@ -90,12 +88,9 @@ class BoardState
             }
 
             // Step 3: Commit suicide if appropriate.
-            bool wasSuicide = false;
-            if (groups[groupId].liberties <= 0)
-            {
+            const bool wasSuicide = groups[groupId].liberties <= 0;
+            if (wasSuicide)
                 killGroup(groupId);
-                wasSuicide = true;
-            }
 
             stm = flipColour(stm);
 
@@ -129,7 +124,7 @@ class BoardState
             empty.join(dying.stones, tiles);
         }
 
-        void display()
+        void display() const
         {
             const auto side = static_cast<std::uint16_t>(stm) ? "White" : "Black";
             std::cout << "\nBoard: " << side << " to play" << std::endl;
