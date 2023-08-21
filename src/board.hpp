@@ -11,6 +11,7 @@ struct Group
     {
         belongsTo = colour;
         stones = LinkHead(tile, tile, 1);
+        liberties = 0;
     }
 
     void join(Group& other, std::vector<LinkNode>& tiles)
@@ -27,10 +28,22 @@ struct Group
 class BoardState
 {
     public:
-        BoardState(std::uint16_t s)
+        BoardState(std::uint16_t withSize)
         {
-            size = s;
-            tiles = std::vector<LinkNode>(size * size);
+            auto tilesLength = withSize * withSize;
+
+            size = withSize;
+            tiles = std::vector<LinkNode>(tilesLength);
+            empty = LinkHead(0, tilesLength - 1, tilesLength);
+
+            // create `empty` list
+            for (auto i = 0; i < tilesLength; i++)
+            {
+                if (i > 0)
+                    tiles[i].prev = Tile(i - 1);
+                if (i < tilesLength - 1)
+                    tiles[i].next = Tile(i + 1);
+            }
         }
 
         bool placeStone(Tile tile)
@@ -93,6 +106,7 @@ class BoardState
         {
             Group& dying = groups[groupId];
             Tile tile = dying.stones.first;
+
             while (!tile.isNull())
             {
                 Vec4 adj{};
@@ -101,10 +115,6 @@ class BoardState
                 for (auto i = 0; i < dirs.length; i++)
                 {
                     const auto adjId = tiles[tile.index() + dirs.elements[i]].group;
-
-                    // this condition shouldn't trigger!
-                    if (adjId == 1024)
-                        continue;
 
                     if (!adj.contains(adjId))
                     {
@@ -123,6 +133,7 @@ class BoardState
         {
             const auto side = static_cast<std::uint16_t>(stm) ? "White" : "Black";
             std::cout << "\nBoard: " << side << " to play" << std::endl;
+
             for (auto i = 0; i < size; i++)
             {
                 for (auto j = 0; j < size; j++)
@@ -137,6 +148,7 @@ class BoardState
                         std::cout << stone << ' ';
                     }
                 }
+
                 std::cout << std::endl;
             }
         }

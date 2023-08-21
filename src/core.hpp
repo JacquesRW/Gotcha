@@ -149,7 +149,7 @@ class LinkHead
             if (last.isNull())
                 last = other.last;
 
-            other = LinkHead(Tile{}, Tile{}, 0);
+            other = LinkHead{};
         }
 
         void remove(const Tile tile, std::vector<LinkNode>& tiles)
