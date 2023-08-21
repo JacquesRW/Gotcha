@@ -20,13 +20,8 @@ std::uint64_t perft(Board& board, uint8_t depth)
     const auto head = board.board.moveHead();
     auto count = 0;
 
-    auto tile = head.first;
-    while (1)
+    for (auto move = head.first;; move = board.board[move].next)
     {
-        const auto move = tile;
-
-        tile = board.board[tile].next;
-
         const bool isLegal = board.tryMakeMove(move);
         if (!isLegal)
             continue;
