@@ -21,9 +21,13 @@ std::uint64_t perft(Board& board, uint8_t depth)
     auto count = 0;
 
     auto tile = head.first;
-    for (auto i = 0; i <= board.board.sizeOf(); i++)
+    while (1)
     {
-        const bool isLegal = board.tryMakeMove(tile);
+        const auto move = tile;
+
+        tile = board.board[tile].next;
+
+        const bool isLegal = board.tryMakeMove(move);
         if (!isLegal)
             continue;
 
@@ -31,10 +35,8 @@ std::uint64_t perft(Board& board, uint8_t depth)
 
         board.undoMove();
 
-        if (tile.isNull())
+        if (move.isNull())
             break;
-
-        tile = board.board[tile].next;
     }
 
     return count;
@@ -43,7 +45,7 @@ std::uint64_t perft(Board& board, uint8_t depth)
 int main()
 {
     const auto size = 5;
-    const auto depth = 4;
+    const auto depth = 5;
 
     auto board = Board(size);
     board.board.display(true);
