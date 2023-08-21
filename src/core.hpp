@@ -40,15 +40,9 @@ struct Vec4
 class Tile
 {
     public:
-        constexpr Tile(std::uint16_t t)
-        {
-            tile = t;
-        }
+        constexpr Tile(std::uint16_t t) { tile = t; }
 
-        constexpr Tile()
-        {
-            tile = 1024;
-        }
+        constexpr Tile() { tile = 1024; }
 
         constexpr Tile(std::uint16_t x, std::uint16_t y, std::uint16_t size)
         {
@@ -87,14 +81,9 @@ struct LinkNode
     Tile next;
     std::uint16_t group;
 
-    LinkNode(std::uint16_t groupId)
-    {
-        group = groupId;
-    }
+    LinkNode(std::uint16_t groupId) { group = groupId; }
 
-    LinkNode() {
-        group = 1024;
-    }
+    LinkNode() { group = 1024; }
 };
 
 class LinkHead

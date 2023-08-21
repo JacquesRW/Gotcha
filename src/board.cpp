@@ -143,7 +143,7 @@ void BoardState::display(const bool showGroups) const
                 else
                 {
                     const auto side = groups[tileGroup].belongsTo;
-                    const char stone = side == Colour::Black ? 'x' : 'o';
+                    const char stone = side == Colour::Black ? 'o' : 'x';
                     std::cout << stone << ' ';
                 }
             }

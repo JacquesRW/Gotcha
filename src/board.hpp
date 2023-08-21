@@ -62,10 +62,7 @@ class Board
     public:
         BoardState board;
 
-        Board(const std::uint16_t withSize)
-        {
-            board = BoardState(withSize);
-        }
+        Board(const std::uint16_t withSize) { board = BoardState(withSize); }
 
         bool tryMakeMove(const Tile tile);
 
