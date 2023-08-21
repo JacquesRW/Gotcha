@@ -106,6 +106,19 @@ class LinkHead
 
         void join(LinkHead& other, std::vector<LinkNode>& tiles)
         {
+            // overwrite group IDs, assuming first group is smaller
+            // in general, for speed
+            const auto newGroupId = tiles[other.first.index()].group;
+
+            tiles[first.index()].group = newGroupId;
+            auto node = tiles[first.index()];
+            while (!node.next.isNull())
+            {
+                node.group = newGroupId;
+                node = tiles[node.next.index()];
+            }
+
+            // join up the groups
             if (!other.last.isNull())
                 tiles[other.last.index()].next = first;
 

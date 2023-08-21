@@ -15,6 +15,7 @@ struct Group
 
     void join(Group& other, std::vector<LinkNode>& tiles)
     {
+        libertyUpperBound += other.libertyUpperBound - 1;
         stones.join(other.stones, tiles);
     }
 
@@ -44,7 +45,8 @@ class BoardState
             empty.remove(tile, tiles);
 
             // Add stone as new group
-            tiles[tile.index()] = LinkNode(groups.size());
+            const auto groupId = groups.size();
+            tiles[tile.index()] = LinkNode(groupId);
             auto newGroup = Group(tile, stm);
 
             // Iterate over directions
@@ -79,6 +81,26 @@ class BoardState
             groups.push_back(newGroup);
 
             stm = flipColour(stm);
+        }
+
+        void display()
+        {
+            std::cout << "Board:" << std::endl;
+            for (auto i = 0; i < size; i++)
+            {
+                for (auto j = 0; j < size; j++)
+                {
+                    const auto tileGroup = tiles[size * i + j].group;
+                    if (tileGroup == 1024)
+                        std::cout << ". ";
+                    else
+                    {
+                        const char stone = groups[tileGroup].belongTo == Colour::Black ? 'x' : 'o';
+                        std::cout << stone << ' ';
+                    }
+                }
+                std::cout << std::endl;
+            }
         }
 
     private:
