@@ -3,45 +3,91 @@
 #include <cstdint>
 #include <vector>
 
-enum struct Colour : std::uint8_t
-{
-    Black = 0,
-    White = 1,
-};
+#include "core.hpp"
 
-class Group
+struct Group
 {
-    private:
-        Colour belongs_to;
-        std::uint16_t liberty_upper_bound;
-        std::uint64_t hash;
-        std::vector<std::uint16_t> stones;
-};
+    Group(Tile tile, Colour colour)
+    {
+        belongTo = colour;
+        stones = LinkHead(tile, tile, 1);
+    }
 
-[[nodiscard]] constexpr auto oppColour(Colour colour)
-{
-    return static_cast<Colour>(static_cast<std::uint8_t>(colour) ^ 1);
-}
+    void join(Group& other, std::vector<LinkNode>& tiles)
+    {
+        stones.join(other.stones, tiles);
+    }
+
+    Colour belongTo;
+    LinkHead stones;
+    LinkNode deadLink;
+    std::uint16_t libertyUpperBound;
+    std::uint64_t hash;
+};
 
 class BoardState
 {
     public:
+        BoardState(std::uint16_t s)
+        {
+            size = s;
+            tiles = std::vector<LinkNode>(size * size);
+        }
+
         [[nodiscard]] constexpr auto getHash() const { return hash; }
+
+        void placeStone(Tile tile)
+        {
+            // Step 1: Place a stone and resolve new groupings.
+
+            // Remove stone from empty.
+            empty.remove(tile, tiles);
+
+            // Add stone as new group
+            tiles[tile.index()] = LinkNode(groups.size());
+            auto newGroup = Group(tile, stm);
+
+            // Iterate over directions
+            const auto dirs = tile.getAdjacent(size);
+            for (auto i = 0; i < dirs.length; i++)
+            {
+                const auto offset = dirs.dirs[i];
+                const auto adjTile = Tile(tile.index() + offset);
+                const auto adjId = tiles[adjTile.index()].group;
+
+                // Non-empty adjacent tile
+                if (adjId != 1024)
+                {
+                    Group& adjGroup = groups[adjId];
+                    // Deprive a different coloured group of a liberty
+                    if (adjGroup.belongTo != stm)
+                        adjGroup.libertyUpperBound--;
+                    // Join onto own group
+                    else
+                    {
+                        newGroup.join(adjGroup, tiles);
+                    }
+                }
+                // Empty adjacent tile is a free liberty
+                else
+                {
+                    newGroup.libertyUpperBound++;
+                }
+            }
+
+            // push to list of groups
+            groups.push_back(newGroup);
+
+            stm = flipColour(stm);
+        }
 
     private:
         Colour stm;
-
+        LinkHead empty;
+        LinkHead dead;
+        std::uint16_t size;
+        std::vector<LinkNode> tiles;
         std::vector<Group> groups;
-        std::vector<std::uint8_t> tiles;
         std::uint64_t hash;
 };
 
-class Tile
-{
-    public:
-        [[nodiscard]] constexpr auto index() const { return tile; }
-        [[nodiscard]] constexpr auto isNull() const { return tile == 1024; }
-
-    private:
-        std::uint16_t tile = 1024;
-};
