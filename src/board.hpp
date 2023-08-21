@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <vector>
-
 #include "core.hpp"
 
 struct Group
@@ -28,19 +25,56 @@ struct Group
 class BoardState
 {
     public:
-        BoardState(std::uint16_t withSize);
+        BoardState(const std::uint16_t withSize);
 
-        bool placeStone(Tile tile);
+        BoardState() { BoardState(5); };
 
-        void killGroup(std::uint16_t groupId);
+        bool placeStone(const Tile tile);
 
-        void display() const;
+        void killGroup(const std::uint16_t groupId);
+
+        void display(const bool showGroups) const;
+
+        void passMove()
+        {
+            stm = flipColour(stm);
+            passes++;
+        }
+
+        bool isGameOver() { return passes >= 2; }
+
+        std::uint16_t sizeOf() { return size * size; }
+
+        [[nodiscard]] auto moveHead() { return empty; }
+        [[nodiscard]] auto operator[](Tile tile) { return tiles[tile.index()]; }
 
     private:
         Colour stm;
         LinkHead empty;
+        std::uint16_t passes;
         std::uint16_t size;
         std::vector<LinkNode> tiles;
         std::vector<Group> groups;
 };
 
+class Board
+{
+    public:
+        BoardState board;
+
+        Board(const std::uint16_t withSize)
+        {
+            board = BoardState(withSize);
+        }
+
+        bool tryMakeMove(const Tile tile);
+
+        void undoMove()
+        {
+            board = history.back();
+            history.pop_back();
+        }
+
+    private:
+        std::vector<BoardState> history;
+};
