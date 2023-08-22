@@ -99,21 +99,12 @@ class LinkHead
         [[nodiscard]] constexpr auto len() const { return length; }
         [[nodiscard]] constexpr auto isEmpty() const { return length == 0; }
 
-        void setNewId(std::uint16_t newGroupId, std::vector<LinkNode>& tiles)
-        {
-            Tile tile = first;
-            while (!tile.isNull())
-            {
-                tiles[tile.index()].group = newGroupId;
-                tile = tiles[tile.index()].next;
-            }
-        }
-
         void join(LinkHead& other, std::vector<LinkNode>& tiles)
         {
             // overwrite group IDs
             const auto newGroupId = first.isNull() ? 1024 : tiles[first.index()].group;
-            other.setNewId(newGroupId, tiles);
+            for (Tile tile = other.first; !tile.isNull(); tile = tiles[tile.index()].next)
+                tiles[tile.index()].group = newGroupId;
 
             // join up the groups
             if (!other.last.isNull())
