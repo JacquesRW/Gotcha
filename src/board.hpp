@@ -41,12 +41,11 @@ class BoardState
             passes++;
         }
 
-        bool isGameOver() { return passes >= 2; }
-
-        std::uint16_t sizeOf() { return size * size; }
-
-        [[nodiscard]] auto moveHead() { return empty; }
-        [[nodiscard]] auto operator[](Tile tile) { return tiles[tile.index()]; }
+        [[nodiscard]] auto isGameOver() const { return passes >= 2; }
+        [[nodiscard]] auto sizeOf() const { return size * size; }
+        [[nodiscard]] auto getHash() const { return hash; }
+        [[nodiscard]] auto moveHead() const { return empty; }
+        [[nodiscard]] auto operator[](Tile tile) const { return tiles[tile.index()]; }
 
     private:
         Colour stm;
@@ -55,6 +54,7 @@ class BoardState
         std::uint16_t size;
         std::vector<LinkNode> tiles;
         std::vector<Group> groups;
+        std::uint64_t hash;
 };
 
 class Board

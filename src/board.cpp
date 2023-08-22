@@ -6,18 +6,32 @@
 bool Board::tryMakeMove(const Tile tile)
 {
     history.push_back(board);
-    bool isLegal = true;
 
-    // passing turn
+    // passing turn is always legal
     if (tile.index() == 1024)
+    {
         board.passMove();
-    else
-        isLegal = !board.placeStone(tile);
+        return true;
+    }
 
-    if (!isLegal)
+    // suicides are not legal
+    if (board.placeStone(tile))
+    {
         undoMove();
+        return false;
+    }
 
-    return isLegal;
+    // repetitions are not legal
+    /*for (const auto& prior : history)
+    {
+        if (prior.getHash() == board.getHash())
+        {
+            undoMove();
+            return false;
+        }
+    }*/
+
+    return true;
 }
 
 BoardState::BoardState(const std::uint16_t withSize)
@@ -28,6 +42,7 @@ BoardState::BoardState(const std::uint16_t withSize)
     tiles = std::vector<LinkNode>(tilesLength);
     empty = LinkHead(0, tilesLength - 1, tilesLength);
     passes = 0;
+    hash = 0;
     stm = Colour::Black;
 
     // create `empty` list
