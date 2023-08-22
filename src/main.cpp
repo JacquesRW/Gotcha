@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "gtp.hpp"
+#include "io/gtp.hpp"
 
 int main()
 {

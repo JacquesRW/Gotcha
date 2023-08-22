@@ -3,9 +3,20 @@
 #include <iostream>
 #include <sstream>
 
-#include "core.hpp"
+#include "parse.hpp"
 
-auto splitAt(const std::string &str, char delim)
+void makeLower(std::string& str)
+{
+    transform(str.begin(), str.end(), str.begin(), ::tolower);
+};
+
+Colour parseColour(std::string& str)
+{
+    return (str.at(0) == 'b') ? Colour::Black : Colour::White;
+}
+
+
+std::pair<std::string, std::string> splitAt(const std::string &str, char delim)
 {
 	std::pair<std::string, std::string> result{};
 
@@ -24,17 +35,6 @@ auto splitAt(const std::string &str, char delim)
     }
 
 	return result;
-}
-
-
-auto makeLower(std::string& str)
-{
-    transform(str.begin(), str.end(), str.begin(), ::tolower);
-};
-
-auto parseColour(std::string& str)
-{
-    return (str.at(0) == 'b') ? Colour::Black : Colour::White;
 }
 
 std::pair<Tile, Colour> parseMove(std::string &moveStr, std::uint16_t size)
@@ -62,7 +62,7 @@ std::pair<Tile, Colour> parseMove(std::string &moveStr, std::uint16_t size)
     return {tile, colour};
 }
 
-auto tileToString(Tile tile)
+std::string tileToString(Tile tile)
 {
     auto column = tile.index() % 19;
     const auto row = tile.index() / 19;

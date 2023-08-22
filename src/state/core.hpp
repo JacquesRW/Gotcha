@@ -99,57 +99,9 @@ class LinkHead
         [[nodiscard]] constexpr auto len() const { return length; }
         [[nodiscard]] constexpr auto isEmpty() const { return length == 0; }
 
-        void setNewId(std::uint16_t newGroupId, std::vector<LinkNode>& tiles)
-        {
-            Tile tile = first;
-            while (!tile.isNull())
-            {
-                tiles[tile.index()].group = newGroupId;
-                tile = tiles[tile.index()].next;
-            }
-        }
+        void join(LinkHead& other, std::vector<LinkNode>& tiles);
 
-        void join(LinkHead& other, std::vector<LinkNode>& tiles)
-        {
-            // overwrite group IDs
-            const auto newGroupId = first.isNull() ? 1024 : tiles[first.index()].group;
-            other.setNewId(newGroupId, tiles);
-
-            // join up the groups
-            if (!other.last.isNull())
-                tiles[other.last.index()].next = first;
-
-            if (!first.isNull())
-                tiles[first.index()].prev = other.last;
-
-            length += other.length;
-            if (!other.first.isNull())
-                first = other.first;
-            if (last.isNull())
-                last = other.last;
-
-            other = LinkHead{};
-        }
-
-        void remove(const Tile tile, std::vector<LinkNode>& tiles)
-        {
-            const auto index = tile.index();
-            const auto prev = tiles[index].prev;
-            const auto next = tiles[index].next;
-            tiles[index] = LinkNode{};
-
-            if (prev.isNull())
-                first = next;
-            else
-                tiles[prev.index()].next = next;
-
-            if (next.isNull())
-                last = prev;
-            else
-                tiles[next.index()].prev = prev;
-
-            length--;
-        }
+        void remove(const Tile tile, std::vector<LinkNode>& tiles);
 
     private:
         std::uint32_t length;

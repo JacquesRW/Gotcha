@@ -1,9 +1,11 @@
+#pragma once
+
 #include <functional>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 
-#include "board.hpp"
+#include "../state/board.hpp"
 
 class GtpRunner
 {
