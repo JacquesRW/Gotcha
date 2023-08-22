@@ -22,14 +22,14 @@ bool Board::tryMakeMove(const Tile tile)
     }
 
     // repetitions are not legal
-    /*for (const auto& prior : history)
+    for (const auto& prior : history)
     {
         if (prior.getHash() == board.getHash())
         {
             undoMove();
             return false;
         }
-    }*/
+    }
 
     return true;
 }
@@ -42,7 +42,7 @@ BoardState::BoardState(const std::uint16_t withSize)
     tiles = std::vector<LinkNode>(tilesLength);
     empty = LinkHead(0, tilesLength - 1, tilesLength);
     passes = 0;
-    hash = 0;
+    hash = Zobrist(0, 0);
     stm = Colour::Black;
 
     // create `empty` list
@@ -61,6 +61,7 @@ bool BoardState::placeStone(const Tile tile)
 
     // Step 1: Place a stone and resolve new groupings.
     empty.remove(tile, tiles);
+    hash ^= Zobrist::hashFor(tile, stm);
 
     const auto groupId = groups.size();
     tiles[tile.index()] = LinkNode(groupId);
@@ -114,6 +115,7 @@ void BoardState::killGroup(const std::uint16_t groupId)
 {
     Group& dying = groups[groupId];
     Tile tile = dying.stones.first;
+    hash ^= dying.hash;
 
     while (!tile.isNull())
     {
