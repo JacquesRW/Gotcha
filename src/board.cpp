@@ -71,7 +71,9 @@ bool BoardState::placeStone(const Tile tile)
 
     const auto groupId = groups.size();
     tiles[tile.index()] = LinkNode(groupId);
-    auto newGroup = Group(tile, stm);
+
+    groups.push_back(Group(tile, stm));
+    auto& newGroup = groups.back();
 
     Vec4 adjEnemies{};
     const auto dirs = tile.getAdjacent(size);
@@ -87,20 +89,17 @@ bool BoardState::placeStone(const Tile tile)
             Group& adjGroup = groups[adjId];
             if (adjGroup.belongsTo != stm)
             {
-                if (!adjEnemies.contains(adjId))
-                {
-                    adjGroup.liberties--;
-                    adjEnemies.push(adjId);
-                }
+                adjGroup.liberties--;
+                adjEnemies.push(adjId);
             }
-            else
+            else if (adjId != groupId)
                 newGroup.join(adjGroup, tiles);
+            else
+                newGroup.liberties--;
         }
         else
             newGroup.liberties++;
     }
-
-    groups.push_back(newGroup);
 
     // Step 2: Capture surrounded enemy stones.
     for (auto i = 0; i < adjEnemies.length; i++)
@@ -136,12 +135,8 @@ void BoardState::killGroup(const std::uint16_t groupId)
             const auto offset = dirs.elements[i];
             const auto adjTile = Tile(tile.index() + offset);
             const auto adjId = tiles[adjTile.index()].group;
-
-            if (!adj.contains(adjId))
-            {
-                groups[adjId].liberties++;
-                adj.push(adjId);
-            }
+            groups[adjId].liberties++;
+            adj.push(adjId);
         }
 
         tile = tiles[tile.index()].next;
@@ -158,9 +153,10 @@ void BoardState::display(const bool showGroups) const
 
     for (auto i = 0; i < size; i++)
     {
+        const auto k = size - i - 1;
         for (auto j = 0; j < size; j++)
         {
-            const auto tileGroup = tiles[size * i + j].group;
+            const auto tileGroup = tiles[size * k + j].group;
             if (showGroups)
                 std::cout << std::setw(4) << tileGroup << " ";
             else

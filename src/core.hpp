@@ -25,16 +25,6 @@ struct Vec4
         elements[length] = element;
         length++;
     }
-
-    constexpr auto contains(std::uint16_t element)
-    {
-        for (auto i = 0; i < length; i++)
-        {
-            if (element == elements[i])
-                return true;
-        }
-        return false;
-    }
 };
 
 class Tile
@@ -122,7 +112,7 @@ class LinkHead
         void join(LinkHead& other, std::vector<LinkNode>& tiles)
         {
             // overwrite group IDs
-            const auto newGroupId = tiles[first.index()].group;
+            const auto newGroupId = first.isNull() ? 1024 : tiles[first.index()].group;
             other.setNewId(newGroupId, tiles);
 
             // join up the groups
