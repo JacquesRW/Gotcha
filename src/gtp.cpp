@@ -15,6 +15,7 @@ GtpRunner::GtpRunner()
     commands.insert({"komi", &GtpRunner::komi});
     commands.insert({"play", &GtpRunner::play});
     commands.insert({"genmove", &GtpRunner::genMove});
+    commands.insert({"showboard", &GtpRunner::showBoard});
 }
 
 auto split_at(const std::string &str, char delim)
@@ -82,4 +83,17 @@ void GtpRunner::knownCommand() const
         reportSuccess("false");
     else
         reportSuccess("true");
+}
+
+void GtpRunner::boardSize()
+{
+    const auto newSize = std::stoi(storedMessage);
+    if (newSize > 25)
+        return reportFailure("unacceptable size");
+    size = newSize;
+}
+
+void GtpRunner::showBoard() const
+{
+    board.display(false);
 }

@@ -35,7 +35,7 @@ class GtpRunner
 
         void quit() const { exit(EXIT_SUCCESS); }
 
-        void boardSize() { size = std::stoi(storedMessage); }
+        void boardSize();
 
         void clearBoard() { board = Board(size); };
 
@@ -44,4 +44,6 @@ class GtpRunner
         void play() {};
 
         void genMove() {};
+
+        void showBoard() const;
 };

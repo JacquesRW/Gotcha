@@ -37,7 +37,7 @@ bool Board::tryMakeMove(const Tile tile)
 void Board::display(const bool showGroups) const
 {
     board.display(showGroups);
-    std::cout << "Moves Played: " << history.size() << std::endl;
+    std::cout << "Moves Played: " << history.size() << "\n" << std::endl;
 }
 
 BoardState::BoardState(const std::uint16_t withSize)
@@ -148,7 +148,7 @@ void BoardState::killGroup(const std::uint16_t groupId)
 void BoardState::display(const bool showGroups) const
 {
     const auto side = static_cast<std::uint16_t>(stm) ? "White" : "Black";
-    std::cout << "\nBoard: " << side << " to play" << std::endl;
+    std::cout << "=\nBoard: " << side << " to play" << std::endl;
     hash.display();
 
     for (auto i = 0; i < size; i++)
