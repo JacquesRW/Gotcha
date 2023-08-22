@@ -1,6 +1,5 @@
-#include <sstream>
-
 #include "gtp.hpp"
+#include "parse.hpp"
 
 GtpRunner::GtpRunner()
 {
@@ -19,39 +18,17 @@ GtpRunner::GtpRunner()
     commands.insert({"perft", &GtpRunner::perft});
 }
 
-auto split_at(const std::string &str, char delim)
-{
-	std::pair<std::string, std::string> result{};
-
-    auto split = str.find(delim);
-
-    if (split == std::string::npos)
-    {
-        result.first = str;
-        result.second = "";
-    }
-    else
-    {
-        result.first = str.substr(0, split);
-        const auto singleton = (split + 1) >= str.length();
-        result.second = singleton ? "" : str.substr(split + 1, str.length());
-    }
-
-	return result;
-}
-
 void GtpRunner::run()
 {
     for (std::string line{}; std::getline(std::cin, line);)
 	{
         auto tokens = split_at(line, ' ');
 
-        try
-        {
-            currId = std::stoi(tokens.first);
+        try { currId = std::stoi(tokens.first); }
+        catch(...) { currId = -1; }
+
+        if (currId != -1)
             tokens = split_at(tokens.second, ' ');
-        }
-        catch (...) { currId = -1; }
 
         const auto command = tokens.first;
 
@@ -109,6 +86,27 @@ void GtpRunner::boardSize()
 void GtpRunner::showBoard() const
 {
     board.display(false);
+}
+
+void GtpRunner::play()
+{
+
+    std::pair<Tile, Colour> move;
+    try { move = parse_move(storedMessage, size); }
+    catch(...)
+    {
+        reportFailure("illegal move");
+        return;
+    }
+
+    const auto tile = move.first;
+    const auto colour = move.second;
+
+    board.setStm(colour);
+    const auto isLegal = board.tryMakeMove(tile);
+
+    if (!isLegal)
+        reportFailure("illegal move");
 }
 
 std::uint64_t runPerft(Board& board, uint8_t depth)

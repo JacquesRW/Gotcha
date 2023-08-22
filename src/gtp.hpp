@@ -43,7 +43,7 @@ class GtpRunner
 
         void komi() const {};
 
-        void play() {};
+        void play();
 
         void genMove() {};
 
