@@ -2,13 +2,14 @@
 
 #include "board.hpp"
 
-void tryMove(std::uint16_t x, std::uint16_t y, std::uint16_t size, BoardState& board)
+void tryMove(std::uint16_t x, std::uint16_t y, std::uint16_t size, Board& board)
 {
     auto tile = Tile(x, y, size);
-    board.placeStone(tile);
+    board.tryMakeMove(tile);
     board.display(true);
 }
 
+template <bool isRoot>
 std::uint64_t perft(Board& board, uint8_t depth)
 {
     if (depth == 0)
@@ -26,7 +27,12 @@ std::uint64_t perft(Board& board, uint8_t depth)
         if (!isLegal)
             continue;
 
-        count += perft(board, depth - 1);
+        const auto subCount = perft<false>(board, depth - 1);
+
+        if constexpr (isRoot)
+            std::cout << move.index() << ": " << subCount << std::endl;
+
+        count += subCount;
 
         board.undoMove();
 
@@ -39,13 +45,12 @@ std::uint64_t perft(Board& board, uint8_t depth)
 
 int main()
 {
-    const auto size = 5;
-    const auto depth = 5;
+    const auto size = 3;
+    const auto depth = 7;
 
     auto board = Board(size);
-    board.board.display(true);
+    board.display(true);
 
-    auto count = perft(board, depth);
-
+    auto count = perft<true>(board, depth);
     std::cout << "depth " << depth << " nodes " << count << std::endl;
 }

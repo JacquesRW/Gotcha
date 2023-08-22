@@ -34,6 +34,12 @@ bool Board::tryMakeMove(const Tile tile)
     return true;
 }
 
+void Board::display(const bool showGroups) const
+{
+    board.display(showGroups);
+    std::cout << "Moves Played: " << history.size() << std::endl;
+}
+
 BoardState::BoardState(const std::uint16_t withSize)
 {
     auto tilesLength = withSize * withSize;
@@ -79,10 +85,13 @@ bool BoardState::placeStone(const Tile tile)
         if (adjId != 1024)
         {
             Group& adjGroup = groups[adjId];
-            if (adjGroup.belongsTo != stm && !adjEnemies.contains(adjId))
+            if (adjGroup.belongsTo != stm)
             {
-                adjGroup.liberties--;
-                adjEnemies.push(adjId);
+                if (!adjEnemies.contains(adjId))
+                {
+                    adjGroup.liberties--;
+                    adjEnemies.push(adjId);
+                }
             }
             else
                 newGroup.join(adjGroup, tiles);
@@ -145,6 +154,7 @@ void BoardState::display(const bool showGroups) const
 {
     const auto side = static_cast<std::uint16_t>(stm) ? "White" : "Black";
     std::cout << "\nBoard: " << side << " to play" << std::endl;
+    hash.display();
 
     for (auto i = 0; i < size; i++)
     {

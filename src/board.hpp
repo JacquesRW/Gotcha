@@ -76,6 +76,8 @@ class Board
             history.pop_back();
         }
 
+        void display(const bool showGroups) const;
+
     private:
         std::vector<BoardState> history;
 };

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <array>
-#include <cstddef>
 #include <cstdint>
+#include <iostream>
 
 #include "core.hpp"
 
@@ -58,24 +58,12 @@ class Zobrist
             return Hashes[half + tile.index()];
         }
 
+        void display() const
+        {
+            std::cout << "Hash: " << upper << lower << std::endl;
+        }
+
     private:
         std::uint64_t upper = 0;
         std::uint64_t lower = 0;
 };
-
-auto generateHashes()
-{
-	std::array<Zobrist, HashSize> hashes{};
-
-    constexpr std::uint64_t SeedUpper = UINT64_C(0xD06C659954EC904A);
-    constexpr std::uint64_t SeedLower = UINT64_C(0xA0B2342C523532E2);
-
-	auto rng = Zobrist(SeedUpper, SeedLower);
-
-	for (auto &hash : hashes)
-		hash = rng.randomise();
-
-	return hashes;
-}
-
-const std::array<Zobrist, HashSize> Zobrist::Hashes = generateHashes();
