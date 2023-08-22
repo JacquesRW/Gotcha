@@ -44,7 +44,15 @@ void GtpRunner::run()
 {
     for (std::string line{}; std::getline(std::cin, line);)
 	{
-        const auto tokens = split_at(line, ' ');
+        auto tokens = split_at(line, ' ');
+
+        try
+        {
+            currId = std::stoi(tokens.first);
+            tokens = split_at(tokens.second, ' ');
+        }
+        catch (...) { currId = -1; }
+
         const auto command = tokens.first;
 
         if (commands.find(command) == commands.end())
@@ -57,13 +65,17 @@ void GtpRunner::run()
 
         auto func = commands[command];
 
-        func(*this);
+        try { func(*this); }
+        catch(...) { reportFailure("unknown command"); }
     }
 }
 
 void GtpRunner::report(char status, std::string message) const
 {
-    std::cout << status << " " << message << "\n" << std::endl;
+    std::cout << status;
+    if (currId != -1)
+        std::cout << currId;
+    std::cout << " " << message << "\n" << std::endl;
 }
 
 void GtpRunner::listCommands() const

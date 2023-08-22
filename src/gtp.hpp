@@ -17,6 +17,7 @@ class GtpRunner
         std::string storedMessage = "";
         Board board = Board(5);
         std::unordered_map<std::string, std::function<void(GtpRunner&)>> commands{};
+        int currId = -1;
 
         void report(char status, std::string message) const;
 
