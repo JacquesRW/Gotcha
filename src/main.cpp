@@ -1,15 +1,6 @@
 #include <iostream>
 
-#include "board.hpp"
-
-void tryMove(std::uint16_t x, std::uint16_t y, std::uint16_t size, Board& board)
-{
-    auto tile = Tile(x, y, size);
-    auto isLegal = board.tryMakeMove(tile);
-    if (!isLegal)
-        std::cout << "woah" << std::endl;
-    board.display(true);
-}
+#include "gtp.hpp"
 
 template <bool isRoot>
 std::uint64_t perft(Board& board, uint8_t depth)
@@ -47,12 +38,6 @@ std::uint64_t perft(Board& board, uint8_t depth)
 
 int main()
 {
-    const auto size = 3;
-    const auto depth = 10;
-
-    auto board = Board(size);
-    board.display(true);
-
-    auto count = perft<true>(board, depth);
-    std::cout << "depth " << depth << " nodes " << count << std::endl;
+    GtpRunner gtp{};
+    gtp.run();
 }
