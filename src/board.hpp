@@ -33,17 +33,13 @@ class BoardState
 
         BoardState() { BoardState(5); };
 
-        bool placeStone(const Tile tile);
+        bool placeStone(const Tile tile, Colour colour);
 
         void killGroup(const std::uint16_t groupId);
 
         void display(const bool showGroups) const;
 
-        void passMove()
-        {
-            stm = flipColour(stm);
-            passes++;
-        }
+        void passMove() { passes++; }
 
         [[nodiscard]] auto isGameOver() const { return passes >= 2; }
         [[nodiscard]] auto sizeOf() const { return size * size; }
@@ -52,7 +48,6 @@ class BoardState
         [[nodiscard]] auto operator[](Tile tile) const { return tiles[tile.index()]; }
 
     private:
-        Colour stm;
         LinkHead empty;
         std::uint16_t passes;
         std::uint16_t size;
@@ -66,12 +61,19 @@ class Board
     public:
         BoardState board;
 
-        Board(const std::uint16_t withSize) { board = BoardState(withSize); }
+        Board(const std::uint16_t withSize)
+        {
+            board = BoardState(withSize);
+            setStm(Colour::Black);
+        }
 
         bool tryMakeMove(const Tile tile);
 
+        void setStm(Colour colour) { stm = colour; }
+
         void undoMove()
         {
+            stm = flipColour(stm);
             board = history.back();
             history.pop_back();
         }
@@ -79,5 +81,6 @@ class Board
         void display(const bool showGroups) const;
 
     private:
+        Colour stm;
         std::vector<BoardState> history;
 };

@@ -21,6 +21,7 @@ class GtpRunner
         void report(char status, std::string message) const;
 
         void reportSuccess(std::string message) const { report('=', message); }
+
         void reportFailure(std::string message) const { report('?', message); }
 
         void protocolVersion() const { reportSuccess("2"); };
@@ -46,4 +47,6 @@ class GtpRunner
         void genMove() {};
 
         void showBoard() const;
+
+        void perft();
 };
