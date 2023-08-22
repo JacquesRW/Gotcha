@@ -22,13 +22,13 @@ void GtpRunner::run()
 {
     for (std::string line{}; std::getline(std::cin, line);)
 	{
-        auto tokens = split_at(line, ' ');
+        auto tokens = splitAt(line, ' ');
 
         try { currId = std::stoi(tokens.first); }
         catch(...) { currId = -1; }
 
         if (currId != -1)
-            tokens = split_at(tokens.second, ' ');
+            tokens = splitAt(tokens.second, ' ');
 
         const auto command = tokens.first;
 
@@ -92,7 +92,7 @@ void GtpRunner::play()
 {
 
     std::pair<Tile, Colour> move;
-    try { move = parse_move(storedMessage, size); }
+    try { move = parseMove(storedMessage, size); }
     catch(...)
     {
         reportFailure("illegal move");
@@ -107,6 +107,36 @@ void GtpRunner::play()
 
     if (!isLegal)
         reportFailure("illegal move");
+}
+
+void GtpRunner::genMove()
+{
+    const auto colour = parseColour(storedMessage);
+
+    board.setStm(colour);
+
+    const auto head = board.board.moveHead();
+
+    Tile move;
+    for (move = head.first;; move = board.board[move].next)
+    {
+        const bool isLegal = board.tryMakeMove(move);
+        if (!isLegal)
+            continue;
+        else
+            // at the moment just return first legal move
+            break;
+
+
+        board.undoMove();
+
+        if (move.isNull())
+            break;
+    }
+
+    const auto moveStr = tileToString(move);
+
+    reportSuccess(moveStr);
 }
 
 std::uint64_t runPerft(Board& board, uint8_t depth)

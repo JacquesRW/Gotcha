@@ -45,7 +45,7 @@ class GtpRunner
 
         void play();
 
-        void genMove() {};
+        void genMove();
 
         void showBoard() const;
 
