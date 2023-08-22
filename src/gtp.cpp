@@ -81,6 +81,19 @@ void GtpRunner::boardSize()
     if (newSize > 25)
         return reportFailure("unacceptable size");
     size = newSize;
+    board = Board(size);
+    reportSuccess("");
+}
+
+void GtpRunner::clearBoard()
+{
+    board = Board(size);
+    reportSuccess("");
+};
+
+void GtpRunner::komi()
+{
+    reportSuccess("");
 }
 
 void GtpRunner::showBoard() const
@@ -107,6 +120,8 @@ void GtpRunner::play()
 
     if (!isLegal)
         reportFailure("illegal move");
+
+    reportSuccess("");
 }
 
 void GtpRunner::genMove()

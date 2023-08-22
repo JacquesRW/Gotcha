@@ -48,7 +48,10 @@ std::pair<Tile, Colour> parseMove(std::string &moveStr, std::uint16_t size)
     const auto columnStr = tileStr.at(0);
     const auto rowStr = splitAt(tileStr, columnStr).second;
 
-    const auto column = static_cast<int>(columnStr) - 97;
+    auto column = static_cast<int>(columnStr) - 97;
+    if (column > 8)
+        column--;
+
     const auto row = std::stoi(rowStr) - 1;
 
     if (column >= size || column < 0 || row >= size || row < 0)
@@ -61,8 +64,11 @@ std::pair<Tile, Colour> parseMove(std::string &moveStr, std::uint16_t size)
 
 auto tileToString(Tile tile)
 {
-    const auto row = tile.index() % 19;
-    const auto column = tile.index() / 19;
+    auto column = tile.index() % 19;
+    const auto row = tile.index() / 19;
 
-    return static_cast<char>(97 + row) + std::to_string(column + 1);
+    if (column > 7)
+        column++;
+
+    return static_cast<char>(97 + column) + std::to_string(row + 1);
 }

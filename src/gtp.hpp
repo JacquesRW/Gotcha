@@ -39,9 +39,9 @@ class GtpRunner
 
         void boardSize();
 
-        void clearBoard() { board = Board(size); };
+        void clearBoard();
 
-        void komi() const {};
+        void komi();
 
         void play();
 
