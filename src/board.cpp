@@ -6,6 +6,8 @@
 bool Board::tryMakeMove(const Tile tile)
 {
     history.push_back(board);
+    const auto moving = stm;
+    stm = flipColour(stm);
 
     // passing turn is always legal
     if (tile.index() == 1024)
@@ -14,8 +16,11 @@ bool Board::tryMakeMove(const Tile tile)
         return true;
     }
 
+    // make move
+    const auto isSuicide = board.placeStone(tile, moving);
+
     // suicides are not legal
-    if (board.placeStone(tile))
+    if (isSuicide)
     {
         undoMove();
         return false;
@@ -37,7 +42,7 @@ bool Board::tryMakeMove(const Tile tile)
 void Board::display(const bool showGroups) const
 {
     board.display(showGroups);
-    std::cout << "Moves Played: " << history.size() << std::endl;
+    std::cout << "Moves Played: " << history.size() << "\n" << std::endl;
 }
 
 BoardState::BoardState(const std::uint16_t withSize)
@@ -49,7 +54,6 @@ BoardState::BoardState(const std::uint16_t withSize)
     empty = LinkHead(0, tilesLength - 1, tilesLength);
     passes = 0;
     hash = Zobrist(0, 0);
-    stm = Colour::Black;
 
     // create `empty` list
     for (auto i = 0; i < tilesLength; i++)
@@ -61,18 +65,18 @@ BoardState::BoardState(const std::uint16_t withSize)
     }
 }
 
-bool BoardState::placeStone(const Tile tile)
+bool BoardState::placeStone(const Tile tile, Colour colour)
 {
     passes = 0;
 
     // Step 1: Place a stone and resolve new groupings.
     empty.remove(tile, tiles);
-    hash ^= Zobrist::hashFor(tile, stm);
+    hash ^= Zobrist::hashFor(tile, colour);
 
     const auto groupId = groups.size();
     tiles[tile.index()] = LinkNode(groupId);
 
-    groups.push_back(Group(tile, stm));
+    groups.push_back(Group(tile, colour));
     auto& newGroup = groups.back();
 
     Vec4 adjEnemies{};
@@ -87,7 +91,7 @@ bool BoardState::placeStone(const Tile tile)
         if (adjId != 1024)
         {
             Group& adjGroup = groups[adjId];
-            if (adjGroup.belongsTo != stm)
+            if (adjGroup.belongsTo != colour)
             {
                 adjGroup.liberties--;
                 adjEnemies.push(adjId);
@@ -113,8 +117,6 @@ bool BoardState::placeStone(const Tile tile)
     const bool wasSuicide = groups[groupId].liberties <= 0;
     if (wasSuicide)
         killGroup(groupId);
-
-    stm = flipColour(stm);
 
     return wasSuicide;
 }
@@ -147,8 +149,7 @@ void BoardState::killGroup(const std::uint16_t groupId)
 
 void BoardState::display(const bool showGroups) const
 {
-    const auto side = static_cast<std::uint16_t>(stm) ? "White" : "Black";
-    std::cout << "\nBoard: " << side << " to play" << std::endl;
+    std::cout << "=\nBoard:" << std::endl;
     hash.display();
 
     for (auto i = 0; i < size; i++)
