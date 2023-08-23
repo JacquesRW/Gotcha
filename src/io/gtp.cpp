@@ -93,6 +93,7 @@ void GtpRunner::clearBoard()
 
 void GtpRunner::komi()
 {
+    board.setKomi(std::stof(storedMessage));
     reportSuccess("");
 }
 

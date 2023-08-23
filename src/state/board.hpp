@@ -41,6 +41,8 @@ class BoardState
 
         void passMove() { passes++; }
 
+        State gameState(float komi) const;
+
         [[nodiscard]] auto isGameOver() const { return passes >= 2; }
         [[nodiscard]] auto sizeOf() const { return size * size; }
         [[nodiscard]] auto getHash() const { return hash; }
@@ -71,6 +73,8 @@ class Board
 
         void setStm(Colour colour) { stm = colour; }
 
+        void setKomi(float val) { komi = val; }
+
         void undoMove()
         {
             stm = flipColour(stm);
@@ -80,7 +84,10 @@ class Board
 
         void display(const bool showGroups) const;
 
+        [[nodiscard]] auto gameState() const { return board.gameState(komi); }
+
     private:
         Colour stm;
+        float komi;
         std::vector<BoardState> history;
 };

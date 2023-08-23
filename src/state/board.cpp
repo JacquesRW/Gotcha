@@ -147,6 +147,14 @@ void BoardState::killGroup(const std::uint16_t groupId)
     empty.join(dying.stones, tiles);
 }
 
+State BoardState::gameState(float komi) const
+{
+    if (!isGameOver())
+        return State::Ongoing;
+
+    return State::Win;
+}
+
 void BoardState::display(const bool showGroups) const
 {
     std::cout << "=\nBoard:" << std::endl;

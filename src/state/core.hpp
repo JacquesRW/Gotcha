@@ -15,21 +15,16 @@ enum struct Colour : std::uint8_t
     return static_cast<Colour>(!static_cast<std::uint8_t>(colour));
 }
 
-enum struct State : std::uint8_t
+enum struct State : std::int8_t
 {
+    Loss = -1,
     Ongoing = 0,
     Win = 1,
-    Loss = 2,
 };
 
 [[nodiscard]] constexpr auto flipState(State state)
 {
-    if (state == State::Win)
-        return State::Loss;
-    else if (state == State::Loss)
-        return State::Win;
-    else
-        return State::Ongoing;
+    return static_cast<State>(-static_cast<int>(state));
 }
 
 struct Vec4

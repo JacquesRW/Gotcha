@@ -34,13 +34,12 @@ class MoveInfo
         {
             move = tile;
             child = std::make_unique<Node>(Node(resultingState));
-            visits = 0;
         }
 
     private:
         Tile move;
         std::unique_ptr<Node> child;
-        std::uint32_t visits;
+        std::uint32_t visits{};
 };
 
 class SearchTree
