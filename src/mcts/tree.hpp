@@ -6,46 +6,56 @@
 
 #include "../state/board.hpp"
 
-class Node
+struct Node
 {
-    public:
-        Node(State resultingState)
-        {
-            state = resultingState;
-        }
+    Node(State resultingState)
+    {
+        state = resultingState;
+    }
 
-        void addChild(Tile move, State resultingState)
-        {
-            exploredMoves.push_back(MoveInfo(move, resultingState));
-        }
+    Node()
+    {
+        state = State::Ongoing;
+    }
 
-        [[nodiscard]] auto isTerminal() const { return state != State::Ongoing; }
-        [[nodiscard]] auto numChildren() const { return exploredMoves.size(); }
+    void addChild(Tile move, State resultingState)
+    {
+        exploredMoves.push_back(MoveInfo(move, resultingState));
+    }
 
-    private:
-        std::vector<MoveInfo> exploredMoves{};
-        State state{};
+    [[nodiscard]] auto isTerminal() const { return state != State::Ongoing; }
+    [[nodiscard]] auto numChildren() const { return exploredMoves.size(); }
+
+    std::vector<MoveInfo> exploredMoves{};
+    State state{};
 };
 
-class MoveInfo
+struct MoveInfo
 {
-    public:
-        MoveInfo(Tile tile, State resultingState)
-        {
-            move = tile;
-            child = std::make_unique<Node>(Node(resultingState));
-        }
+    MoveInfo(Tile tile, State resultingState)
+    {
+        move = tile;
+        child = std::make_unique<Node>(Node(resultingState));
+    }
 
-    private:
-        Tile move;
-        std::unique_ptr<Node> child;
-        std::uint32_t visits{};
+    Tile move;
+    std::unique_ptr<Node> child;
+    std::uint32_t visits{};
 };
 
 class SearchTree
 {
+    SearchTree(State currState)
+    {
+        rootNode = Node(currState);
+    }
+
+    Node& selectLeaf(Board& board);
+
+    void expandNode(Board& board, Node& node);
+
     private:
-        Node rootNode = Node(State::Ongoing);
+        Node rootNode{};
         std::uint64_t nodes{};
         std::uint64_t playouts{};
 };
