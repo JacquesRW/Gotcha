@@ -16,6 +16,7 @@ GtpRunner::GtpRunner()
     commands.insert({"genmove", &GtpRunner::genMove});
     commands.insert({"showboard", &GtpRunner::showBoard});
     commands.insert({"perft", &GtpRunner::perft});
+    commands.insert({"stones", &GtpRunner::stones});
 }
 
 void GtpRunner::run()
@@ -153,6 +154,14 @@ void GtpRunner::genMove()
     const auto moveStr = tileToString(move);
 
     reportSuccess(moveStr);
+}
+
+void GtpRunner::stones()
+{
+    const auto numStones = board.stones();
+    const auto black = std::to_string(numStones[0]);
+    const auto white = std::to_string(numStones[1]);
+    reportSuccess("black " + black + "white " + white);
 }
 
 std::uint64_t runPerft(Board& board, uint8_t depth)

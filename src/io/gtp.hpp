@@ -51,5 +51,7 @@ class GtpRunner
 
         void showBoard() const;
 
+        void stones();
+
         void perft();
 };

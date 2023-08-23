@@ -47,6 +47,7 @@ class BoardState
         [[nodiscard]] auto sizeOf() const { return size * size; }
         [[nodiscard]] auto getHash() const { return hash; }
         [[nodiscard]] auto moveHead() const { return empty; }
+        [[nodiscard]] auto numStones() const { return stones; }
         [[nodiscard]] auto operator[](Tile tile) const { return tiles[tile.index()]; }
 
     private:
@@ -55,6 +56,7 @@ class BoardState
         std::uint16_t size;
         std::vector<LinkNode> tiles;
         std::vector<Group> groups;
+        std::array<std::uint16_t, 2> stones;
         Zobrist hash;
 };
 
@@ -84,6 +86,7 @@ class Board
 
         void display(const bool showGroups) const;
 
+        [[nodiscard]] auto stones() const { return board.numStones(); }
         [[nodiscard]] auto gameState() const { return board.gameState(komi); }
 
     private:

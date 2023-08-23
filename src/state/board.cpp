@@ -53,6 +53,7 @@ BoardState::BoardState(const std::uint16_t withSize)
     tiles = std::vector<LinkNode>(tilesLength);
     empty = LinkHead(0, tilesLength - 1, tilesLength);
     passes = 0;
+    stones = {0, 0};
     hash = Zobrist(0, 0);
 
     // create `empty` list
@@ -68,10 +69,13 @@ BoardState::BoardState(const std::uint16_t withSize)
 bool BoardState::placeStone(const Tile tile, Colour colour)
 {
     passes = 0;
+    const auto stm = static_cast<std::uint8_t>(colour);
+    const auto oppStm = 1 - stm;
 
     // Step 1: Place a stone and resolve new groupings.
     empty.remove(tile, tiles);
     hash ^= Zobrist::hashFor(tile, colour);
+    stones[stm] += 1;
 
     const auto groupId = groups.size();
     tiles[tile.index()] = LinkNode(groupId);
@@ -126,6 +130,8 @@ void BoardState::killGroup(const std::uint16_t groupId)
     Group& dying = groups[groupId];
     Tile tile = dying.stones.first;
     hash ^= dying.hash;
+    const auto dyingColour = static_cast<std::uint8_t>(dying.belongsTo);
+    stones[dyingColour] -= dying.stones.len();
 
     while (!tile.isNull())
     {
