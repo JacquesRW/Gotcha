@@ -41,7 +41,7 @@ class BoardState
 
         void passMove() { passes++; }
 
-        State gameState(float komi) const;
+        State gameState(Colour stm, float komi) const;
 
         [[nodiscard]] auto isGameOver() const { return passes >= 2; }
         [[nodiscard]] auto sizeOf() const { return size * size; }
@@ -87,7 +87,7 @@ class Board
         void display(const bool showGroups) const;
 
         [[nodiscard]] auto stones() const { return board.numStones(); }
-        [[nodiscard]] auto gameState() const { return board.gameState(komi); }
+        [[nodiscard]] auto gameState() const { return board.gameState(stm, komi); }
 
     private:
         Colour stm;
