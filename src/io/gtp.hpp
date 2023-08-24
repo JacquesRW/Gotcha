@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "../mcts/mcts.hpp"
 #include "../state/board.hpp"
 
 class GtpRunner
@@ -15,9 +16,9 @@ class GtpRunner
         void run();
 
     private:
+        Mcts searcher{};
         std::uint16_t size = 5;
         std::string storedMessage = "";
-        Board board = Board(5);
         std::unordered_map<std::string, std::function<void(GtpRunner&)>> commands{};
         int currId = -1;
 

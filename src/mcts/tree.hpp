@@ -6,6 +6,18 @@
 
 #include "../state/board.hpp"
 
+struct MoveInfo
+{
+    MoveInfo(Tile tile)
+    {
+        move = tile;
+        ptr = -1;
+    }
+
+    Tile move;
+    std::int32_t ptr;
+};
+
 struct Node
 {
     Node(Board& board)
@@ -38,18 +50,6 @@ struct Node
     std::uint16_t leftToExplore{};
     std::uint32_t visits{};
     std::uint32_t wins{};
-};
-
-struct MoveInfo
-{
-    MoveInfo(Tile tile)
-    {
-        move = tile;
-        ptr = -1;
-    }
-
-    Tile move;
-    std::int32_t ptr;
 };
 
 struct SearchTree

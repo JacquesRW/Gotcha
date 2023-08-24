@@ -3,14 +3,16 @@
 class Mcts
 {
     public:
-        Mcts(Board b, std::int32_t cap)
+        Board board;
+
+        Mcts()
         {
-            board = b;
+            board = Board(5);
             tree = SearchTree(board);
-            capacity = cap;
+            capacity = 100;
         }
 
-        Tile Mcts::search();
+        Tile search();
 
     private:
         std::uint64_t getRandom();
@@ -23,7 +25,6 @@ class Mcts
 
         void backprop(State result);
 
-        Board board;
         SearchTree tree;
         std::uint64_t random = UINT64_C(2078630127);
         std::int32_t capacity{};

@@ -1,5 +1,7 @@
 #include <cassert>
+#include <iostream>
 
+#include "../io/parse.hpp"
 #include "mcts.hpp"
 
 Tile Mcts::search()
@@ -37,12 +39,16 @@ Tile Mcts::search()
 
         const auto score = wins / visits;
 
+        std::cout << tileToString(move.move) << ": " << 100.0 * score << std::endl;
+
         if (score > bestScore)
         {
             bestScore = score;
             bestIdx = i;
         }
     }
+
+    std::cout << "win probability: " << 100.0 * bestScore << std::endl;
 
     return rootNode.legalMoves[bestIdx].move;
 }

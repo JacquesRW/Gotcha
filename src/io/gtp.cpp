@@ -82,30 +82,29 @@ void GtpRunner::boardSize()
     if (newSize > 25)
         return reportFailure("unacceptable size");
     size = newSize;
-    board = Board(size);
+    searcher.board = Board(size);
     reportSuccess("");
 }
 
 void GtpRunner::clearBoard()
 {
-    board = Board(size);
+    searcher.board = Board(size);
     reportSuccess("");
 };
 
 void GtpRunner::komi()
 {
-    board.setKomi(std::stof(storedMessage));
+    searcher.board.setKomi(std::stof(storedMessage));
     reportSuccess("");
 }
 
 void GtpRunner::showBoard() const
 {
-    board.display(false);
+    searcher.board.display(false);
 }
 
 void GtpRunner::play()
 {
-
     std::pair<Tile, Colour> move;
     try { move = parseMove(storedMessage, size); }
     catch(...)
@@ -117,38 +116,30 @@ void GtpRunner::play()
     const auto tile = move.first;
     const auto colour = move.second;
 
-    board.setStm(colour);
-    const auto isLegal = board.tryMakeMove(tile);
+    searcher.board.setStm(colour);
+    const auto isLegal = searcher.board.tryMakeMove(tile);
 
-    if (!isLegal)
+    if (isLegal)
+        reportSuccess("");
+    else
         reportFailure("illegal move");
-
-    reportSuccess("");
 }
 
 void GtpRunner::genMove()
 {
     const auto colour = parseColour(storedMessage);
 
-    board.setStm(colour);
+    searcher.board.setStm(colour);
 
-    //const auto moves = board.moveList(std::vector<Tile>(0));
-//
-    //for (const auto move : moves)
-    //{
-    //    const auto isLegal = board.tryMakeMove(move);
-    //    if (isLegal)
-    //    {
-    //        const auto moveStr = tileToString(move);
-    //        reportSuccess(moveStr);
-    //        break;
-    //    }
-    //}
+    const auto move = searcher.search();
+
+    const auto moveStr = tileToString(move);
+    reportSuccess(moveStr);
 }
 
 void GtpRunner::stones()
 {
-    const auto numStones = board.stones();
+    const auto numStones = searcher.board.stones();
     const auto black = std::to_string(numStones[0]);
     const auto white = std::to_string(numStones[1]);
     reportSuccess("black " + black + "white " + white);
@@ -157,6 +148,6 @@ void GtpRunner::stones()
 void GtpRunner::perft()
 {
     const auto depth = std::stoi(storedMessage);
-    const auto count = board.runPerft(depth);
+    const auto count = searcher.board.runPerft(depth);
     reportSuccess("nodes " + std::to_string(count));
 }
