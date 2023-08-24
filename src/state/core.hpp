@@ -51,6 +51,8 @@ class Tile
             tile = size * y + x;
         }
 
+        [[nodiscard]] constexpr auto operator==(const Tile other) const { return tile == other.tile; }
+
         [[nodiscard]] constexpr auto index() const { return tile; }
         [[nodiscard]] constexpr auto isNull() const { return tile == 1024; }
 

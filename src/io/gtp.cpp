@@ -1,7 +1,3 @@
-#include <algorithm>
-#include <chrono>
-#include <random>
-
 #include "gtp.hpp"
 #include "parse.hpp"
 
@@ -137,10 +133,6 @@ void GtpRunner::genMove()
     board.setStm(colour);
 
     const auto moves = board.moveList(std::vector<Tile>(0));
-
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine e(seed);
-    std::shuffle(moves.begin(), moves.end(), e);
 
     for (const auto move : moves)
     {
