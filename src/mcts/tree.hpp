@@ -8,9 +8,28 @@
 
 struct Node
 {
-    Node(State resultingState)
+    Node(Board& board)
     {
-        state = resultingState;
+        state = board.gameState();
+
+        const auto head = board.board.moveHead();
+        auto count = 0;
+
+        for (auto move = head.first;; move = board.board[move].next)
+        {
+            const bool isLegal = board.tryMakeMove(move);
+            if (!isLegal)
+                continue;
+
+            legalMoves.push_back(MoveInfo(move));
+
+            board.undoMove();
+
+            if (move.isNull())
+                break;
+        }
+
+        leftToExplore = legalMoves.size();
     }
 
     Node()
@@ -18,24 +37,20 @@ struct Node
         state = State::Ongoing;
     }
 
-    void addChild(Tile move, State resultingState)
-    {
-        exploredMoves.push_back(MoveInfo(move, resultingState));
-    }
-
     [[nodiscard]] auto isTerminal() const { return state != State::Ongoing; }
-    [[nodiscard]] auto numChildren() const { return exploredMoves.size(); }
+    [[nodiscard]] auto numChildren() const { return legalMoves.size(); }
 
-    std::vector<MoveInfo> exploredMoves{};
+    std::vector<MoveInfo> legalMoves{};
+    std::uint16_t leftToExplore{};
     State state{};
 };
 
 struct MoveInfo
 {
-    MoveInfo(Tile tile, State resultingState)
+    MoveInfo(Tile tile)
     {
         move = tile;
-        child = std::make_unique<Node>(Node(resultingState));
+        child = std::make_unique<Node>(nullptr);
     }
 
     Tile move;
@@ -45,10 +60,12 @@ struct MoveInfo
 
 struct SearchTree
 {
-    SearchTree(State currState)
+    SearchTree(Board& board)
     {
-        rootNode = Node(currState);
+        rootNode = Node(board);
     }
+
+    SearchTree() {}
 
     Node rootNode{};
     std::uint64_t nodes{};

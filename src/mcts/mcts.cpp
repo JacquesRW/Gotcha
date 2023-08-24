@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include "mcts.hpp"
 
 std::uint64_t Mcts::getRandom()
@@ -11,17 +13,20 @@ std::uint64_t Mcts::getRandom()
 
 Node& Mcts::selectLeaf()
 {
+    selectionLine.clear();
     Node& leaf = tree.rootNode;
 
-    while (leaf.numChildren() > 0)
+    while (1)
     {
-        // 50% chance of selecting further down (for now)
-        if (getRandom() & 1)
+        const auto randomIdx = getRandom() % leaf.numChildren();
+
+        if (leaf.legalMoves[randomIdx].child)
         {
-            const auto randomIdx = getRandom() % leaf.numChildren();
-            leaf = *leaf.exploredMoves[randomIdx].child;
+            // verified legal move
+            board.makeMove(leaf.legalMoves[randomIdx].move);
+            selectionLine.push_back(leaf.legalMoves[randomIdx]);
+            leaf = *leaf.legalMoves[randomIdx].child;
         }
-        // using this node
         else
             break;
     }
@@ -31,5 +36,21 @@ Node& Mcts::selectLeaf()
 
 Node& Mcts::expandNode(Node& node)
 {
+    assert(node.leftToExplore > 0);
+    const auto randomIdx = getRandom() % node.leftToExplore;
 
-}
+    node.leftToExplore--;
+
+    if (node.leftToExplore)
+        std::swap(node.legalMoves[randomIdx], node.legalMoves[node.leftToExplore]);
+
+    auto& nodeToExplore = node.legalMoves[node.leftToExplore];
+    selectionLine.push_back(nodeToExplore);
+
+    // verified legal move
+    board.makeMove(nodeToExplore.move);
+
+    nodeToExplore.child = std::make_unique<Node>(Node(board));
+
+    return *nodeToExplore.child;
+};

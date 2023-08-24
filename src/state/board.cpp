@@ -127,6 +127,18 @@ State BoardState::gameState(Colour stm, float komi) const
     return winBlack;
 }
 
+void Board::makeMove(const Tile tile)
+{
+    history.push_back(board);
+    const auto moving = stm;
+    stm = flipColour(stm);
+
+    if (tile.index() == 1024)
+        board.passMove();
+    else
+        board.placeStone(tile, moving);
+}
+
 bool Board::tryMakeMove(const Tile tile)
 {
     history.push_back(board);
@@ -167,24 +179,6 @@ void Board::display(const bool showGroups) const
 {
     board.display(showGroups);
     std::cout << "Moves Played: " << history.size() << "\n" << std::endl;
-}
-
-std::vector<Tile> Board::moveList(std::vector<Tile> used) const
-{
-    const auto head = board.moveHead();
-
-    std::vector<Tile> moves{};
-
-    for (auto move = head.first;; move = board[move].next)
-    {
-        if (std::find(used.begin(), used.end(), move) != used.end())
-            moves.push_back(move);
-
-        if (move.isNull())
-            break;
-    }
-
-    return moves;
 }
 
 std::uint64_t Board::runPerft(uint8_t depth)

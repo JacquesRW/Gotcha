@@ -63,11 +63,21 @@ class BoardState
 class Board
 {
     public:
+        BoardState board;
+
         Board(const std::uint16_t withSize)
         {
             board = BoardState(withSize);
             setStm(Colour::Black);
         }
+
+        Board()
+        {
+            board = BoardState(5);
+            setStm(Colour::Black);
+        }
+
+        void makeMove(const Tile tile);
 
         bool tryMakeMove(const Tile tile);
 
@@ -82,8 +92,6 @@ class Board
             history.pop_back();
         }
 
-        std::vector<Tile> moveList(std::vector<Tile> used) const;
-
         void display(const bool showGroups) const;
 
         std::uint64_t runPerft(uint8_t depth);
@@ -92,7 +100,6 @@ class Board
         [[nodiscard]] auto gameState() const { return board.gameState(stm, komi); }
 
     private:
-        BoardState board;
         Colour stm;
         float komi;
         std::vector<BoardState> history;

@@ -132,18 +132,18 @@ void GtpRunner::genMove()
 
     board.setStm(colour);
 
-    const auto moves = board.moveList(std::vector<Tile>(0));
-
-    for (const auto move : moves)
-    {
-        const auto isLegal = board.tryMakeMove(move);
-        if (isLegal)
-        {
-            const auto moveStr = tileToString(move);
-            reportSuccess(moveStr);
-            break;
-        }
-    }
+    //const auto moves = board.moveList(std::vector<Tile>(0));
+//
+    //for (const auto move : moves)
+    //{
+    //    const auto isLegal = board.tryMakeMove(move);
+    //    if (isLegal)
+    //    {
+    //        const auto moveStr = tileToString(move);
+    //        reportSuccess(moveStr);
+    //        break;
+    //    }
+    //}
 }
 
 void GtpRunner::stones()
