@@ -3,48 +3,6 @@
 
 #include "board.hpp"
 
-bool Board::tryMakeMove(const Tile tile)
-{
-    history.push_back(board);
-    const auto moving = stm;
-    stm = flipColour(stm);
-
-    // passing turn is always legal
-    if (tile.index() == 1024)
-    {
-        board.passMove();
-        return true;
-    }
-
-    // make move
-    const auto isSuicide = board.placeStone(tile, moving);
-
-    // suicides are not legal
-    if (isSuicide)
-    {
-        undoMove();
-        return false;
-    }
-
-    // repetitions are not legal
-    for (const auto& prior : history)
-    {
-        if (prior.getHash() == board.getHash())
-        {
-            undoMove();
-            return false;
-        }
-    }
-
-    return true;
-}
-
-void Board::display(const bool showGroups) const
-{
-    board.display(showGroups);
-    std::cout << "Moves Played: " << history.size() << "\n" << std::endl;
-}
-
 BoardState::BoardState(const std::uint16_t withSize)
 {
     auto tilesLength = withSize * withSize;
@@ -167,6 +125,96 @@ State BoardState::gameState(Colour stm, float komi) const
         return flipState(winBlack);
 
     return winBlack;
+}
+
+bool Board::tryMakeMove(const Tile tile)
+{
+    history.push_back(board);
+    const auto moving = stm;
+    stm = flipColour(stm);
+
+    // passing turn is always legal
+    if (tile.index() == 1024)
+    {
+        board.passMove();
+        return true;
+    }
+
+    // make move
+    const auto isSuicide = board.placeStone(tile, moving);
+
+    // suicides are not legal
+    if (isSuicide)
+    {
+        undoMove();
+        return false;
+    }
+
+    // repetitions are not legal
+    for (const auto& prior : history)
+    {
+        if (prior.getHash() == board.getHash())
+        {
+            undoMove();
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void Board::display(const bool showGroups) const
+{
+    board.display(showGroups);
+    std::cout << "Moves Played: " << history.size() << "\n" << std::endl;
+}
+
+std::vector<Tile> Board::moveList(std::vector<Tile> used) const
+{
+    const auto head = board.moveHead();
+
+    std::vector<Tile> moves{};
+
+    for (auto move = head.first;; move = board[move].next)
+    {
+        if (std::find(used.begin(), used.end(), move) != used.end())
+            moves.push_back(move);
+
+        if (move.isNull())
+            break;
+    }
+
+    return moves;
+}
+
+std::uint64_t Board::runPerft(uint8_t depth)
+{
+    if (depth == 0)
+        return 1;
+
+    if (board.isGameOver())
+        return 0;
+
+    const auto head = board.moveHead();
+    auto count = 0;
+
+    for (auto move = head.first;; move = board[move].next)
+    {
+        const bool isLegal = tryMakeMove(move);
+        if (!isLegal)
+            continue;
+
+        const auto subCount = runPerft(depth - 1);
+
+        count += subCount;
+
+        undoMove();
+
+        if (move.isNull())
+            break;
+    }
+
+    return count;
 }
 
 void BoardState::display(const bool showGroups) const

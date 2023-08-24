@@ -63,8 +63,6 @@ class BoardState
 class Board
 {
     public:
-        BoardState board;
-
         Board(const std::uint16_t withSize)
         {
             board = BoardState(withSize);
@@ -84,12 +82,17 @@ class Board
             history.pop_back();
         }
 
+        std::vector<Tile> moveList(std::vector<Tile> used) const;
+
         void display(const bool showGroups) const;
+
+        std::uint64_t runPerft(uint8_t depth);
 
         [[nodiscard]] auto stones() const { return board.numStones(); }
         [[nodiscard]] auto gameState() const { return board.gameState(stm, komi); }
 
     private:
+        BoardState board;
         Colour stm;
         float komi;
         std::vector<BoardState> history;

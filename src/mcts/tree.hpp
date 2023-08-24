@@ -43,19 +43,14 @@ struct MoveInfo
     std::uint32_t visits{};
 };
 
-class SearchTree
+struct SearchTree
 {
     SearchTree(State currState)
     {
         rootNode = Node(currState);
     }
 
-    Node& selectLeaf(Board& board);
-
-    void expandNode(Board& board, Node& node);
-
-    private:
-        Node rootNode{};
-        std::uint64_t nodes{};
-        std::uint64_t playouts{};
+    Node rootNode{};
+    std::uint64_t nodes{};
+    std::uint64_t playouts{};
 };

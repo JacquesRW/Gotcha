@@ -1,3 +1,7 @@
+#include <algorithm>
+#include <chrono>
+#include <random>
+
 #include "gtp.hpp"
 #include "parse.hpp"
 
@@ -132,28 +136,22 @@ void GtpRunner::genMove()
 
     board.setStm(colour);
 
-    const auto head = board.board.moveHead();
+    const auto moves = board.moveList(std::vector<Tile>(0));
 
-    Tile move;
-    for (move = head.first;; move = board.board[move].next)
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine e(seed);
+    std::shuffle(moves.begin(), moves.end(), e);
+
+    for (const auto move : moves)
     {
-        const bool isLegal = board.tryMakeMove(move);
-        if (!isLegal)
-            continue;
-        else
-            // at the moment just return first legal move
+        const auto isLegal = board.tryMakeMove(move);
+        if (isLegal)
+        {
+            const auto moveStr = tileToString(move);
+            reportSuccess(moveStr);
             break;
-
-
-        board.undoMove();
-
-        if (move.isNull())
-            break;
+        }
     }
-
-    const auto moveStr = tileToString(move);
-
-    reportSuccess(moveStr);
 }
 
 void GtpRunner::stones()
@@ -164,39 +162,9 @@ void GtpRunner::stones()
     reportSuccess("black " + black + "white " + white);
 }
 
-std::uint64_t runPerft(Board& board, uint8_t depth)
-{
-    if (depth == 0)
-        return 1;
-
-    if (board.board.isGameOver())
-        return 0;
-
-    const auto head = board.board.moveHead();
-    auto count = 0;
-
-    for (auto move = head.first;; move = board.board[move].next)
-    {
-        const bool isLegal = board.tryMakeMove(move);
-        if (!isLegal)
-            continue;
-
-        const auto subCount = runPerft(board, depth - 1);
-
-        count += subCount;
-
-        board.undoMove();
-
-        if (move.isNull())
-            break;
-    }
-
-    return count;
-}
-
 void GtpRunner::perft()
 {
     const auto depth = std::stoi(storedMessage);
-    const auto count = runPerft(board, depth);
+    const auto count = board.runPerft(depth);
     reportSuccess("nodes " + std::to_string(count));
 }
