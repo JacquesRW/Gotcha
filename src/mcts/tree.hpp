@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "../io/parse.hpp"
 #include "../state/board.hpp"
 
 struct MoveInfo
@@ -18,38 +19,50 @@ struct MoveInfo
     std::int32_t ptr;
 };
 
-struct Node
+class Node
 {
-    Node(Board& board)
-    {
-        state = board.gameState();
-
-        const auto head = board.board.moveHead();
-        for (auto move = head.first;; move = board.board[move].next)
+    public:
+        Node(Board& board)
         {
-            const bool isLegal = board.tryMakeMove(move);
-            if (!isLegal)
-                continue;
+            state = board.gameState();
 
-            legalMoves.push_back(MoveInfo(move));
+            const auto head = board.board.moveHead();
+            for (auto move = head.first;; move = board.board[move].next)
+            {
+                const bool isLegal = board.tryMakeMove(move);
+                if (!isLegal)
+                    continue;
 
-            board.undoMove();
+                legalMoves.push_back(MoveInfo(move));
 
-            if (move.isNull())
-                break;
+                board.undoMove();
+
+                if (move.isNull())
+                    break;
+            }
+
+            leftToExplore = legalMoves.size();
         }
 
-        leftToExplore = legalMoves.size();
-    }
+        [[nodiscard]] auto isTerminal() const { return state != State::Ongoing; }
+        [[nodiscard]] auto numChildren() const { return legalMoves.size(); }
 
-    [[nodiscard]] auto isTerminal() const { return state != State::Ongoing; }
-    [[nodiscard]] auto numChildren() const { return legalMoves.size(); }
+        [[nodiscard]] auto& operator[](std::int32_t i) {
+            try { return legalMoves.at(i); }
+            catch(std::out_of_range e) {
+                std::cout << numChildren() << " " << i << std::endl;
+                exit(EXIT_FAILURE);
+            }
+        }
+        [[nodiscard]] const auto& operator[](std::int32_t i) const { return legalMoves.at(i); }
 
-    State state{};
-    std::vector<MoveInfo> legalMoves{};
-    std::uint16_t leftToExplore{};
-    std::uint32_t visits{};
-    std::uint32_t wins{};
+        State state{};
+        std::uint16_t leftToExplore{};
+        std::uint32_t visits{};
+        std::uint32_t wins{};
+
+    private:
+        std::vector<MoveInfo> legalMoves{};
 };
 
 struct SearchTree
@@ -69,8 +82,14 @@ struct SearchTree
         playouts = 0;
     }
 
-    std::int32_t size() const { return static_cast<int32_t>(nodes.size()); }
+    std::int32_t size() const { return static_cast<std::int32_t>(nodes.size()); }
 
-    std::vector<Node> nodes{};
+    void add(Node n) { nodes.push_back(n); }
+
+    [[nodiscard]] auto& operator[](std::int32_t i) { return nodes.at(i); }
+
     std::uint64_t playouts{};
+
+    private:
+        std::vector<Node> nodes{};
 };

@@ -49,6 +49,7 @@ class BoardState
         [[nodiscard]] auto moveHead() const { return empty; }
         [[nodiscard]] auto numStones() const { return stones; }
         [[nodiscard]] auto operator[](Tile tile) const { return tiles[tile.index()]; }
+        [[nodiscard]] auto width() const { return size; }
 
     private:
         LinkHead empty;
@@ -86,6 +87,8 @@ class Board
         void setStm(Colour colour) { stm = colour; }
 
         void setKomi(float val) { komi = val; }
+
+        std::uint16_t size() const { return board.width(); }
 
         void undoMove()
         {

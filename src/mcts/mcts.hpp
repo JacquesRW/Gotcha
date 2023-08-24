@@ -7,12 +7,14 @@ class Mcts
 
         Mcts()
         {
-            board = Board(5);
+            board = Board(3);
             tree = SearchTree(board);
-            capacity = 100;
+            capacity = 10000;
         }
 
         Tile search();
+
+        void setNodes(std::int32_t nodes) { capacity = nodes; }
 
     private:
         std::uint64_t getRandom();

@@ -196,6 +196,8 @@ bool Board::tryMakeMove(const Tile tile)
 void Board::display(const bool showGroups) const
 {
     board.display(showGroups);
+    const auto side = stm == Colour::Black ? "black" : "white";
+    std::cout << "STM: " << side << std::endl;
     std::cout << "Moves Played: " << history.size() << "\n" << std::endl;
 }
 

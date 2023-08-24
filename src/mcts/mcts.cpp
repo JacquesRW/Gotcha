@@ -1,7 +1,6 @@
 #include <cassert>
 #include <iostream>
 
-#include "../io/parse.hpp"
 #include "mcts.hpp"
 
 Tile Mcts::search()
@@ -25,21 +24,26 @@ Tile Mcts::search()
         backprop(result);
     }
 
-    const auto& rootNode = tree.nodes[0];
+    const auto& rootNode = tree[0];
     auto bestIdx = 0;
     auto bestScore = 0.0;
 
     for (auto i = 0; i < rootNode.numChildren(); i++)
     {
-        const auto move = rootNode.legalMoves[i];
-        const auto& node = tree.nodes[move.ptr];
+        const auto move = rootNode[i];
+
+        // unexplored move
+        if (move.ptr == -1)
+            continue;
+
+        const auto& node = tree[move.ptr];
 
         const auto visits = static_cast<double>(node.visits);
         const auto wins = static_cast<double>(node.wins);
 
         const auto score = wins / visits;
 
-        std::cout << tileToString(move.move) << ": " << 100.0 * score << std::endl;
+        std::cout << tileToString(move.move, board.size()) << ": " << 100.0 * score << std::endl;
 
         if (score > bestScore)
         {
@@ -50,7 +54,7 @@ Tile Mcts::search()
 
     std::cout << "win probability: " << 100.0 * bestScore << std::endl;
 
-    return rootNode.legalMoves[bestIdx].move;
+    return rootNode[bestIdx].move;
 }
 
 std::uint64_t Mcts::getRandom()
@@ -65,26 +69,25 @@ std::uint64_t Mcts::getRandom()
 std::int32_t Mcts::selectLeaf()
 {
     selectionLine.clear();
-    selectionLine.push_back(0);
 
     auto nodePtr = 0;
 
     while (1)
     {
-        const auto& node = tree.nodes[nodePtr];
+        const auto& node = tree[nodePtr];
 
         // found a terminal node
         if (node.isTerminal())
             return -1;
 
         const auto randomIdx = getRandom() % node.numChildren();
-        const auto next = node.legalMoves[randomIdx].ptr;
+        const auto next = node[randomIdx].ptr;
 
         if (next == -1)
             break;
 
         // verified legal move
-        board.makeMove(node.legalMoves[randomIdx].move);
+        board.makeMove(node[randomIdx].move);
         selectionLine.push_back(next);
         nodePtr = next;
     }
@@ -92,9 +95,9 @@ std::int32_t Mcts::selectLeaf()
     return nodePtr;
 }
 
-std::int32_t Mcts::expandNode(std::int32_t nodePtr)
+std::int32_t Mcts::expandNode(const std::int32_t nodePtr)
 {
-    auto& node = tree.nodes[nodePtr];
+    auto& node = tree[nodePtr];
 
     assert(node.leftToExplore > 0);
     const auto randomIdx = getRandom() % node.leftToExplore;
@@ -102,15 +105,17 @@ std::int32_t Mcts::expandNode(std::int32_t nodePtr)
     node.leftToExplore--;
 
     if (node.leftToExplore)
-        std::swap(node.legalMoves[randomIdx], node.legalMoves[node.leftToExplore]);
-
-    auto& nodeToExplore = node.legalMoves[node.leftToExplore];
+        std::swap(node[randomIdx], node[node.leftToExplore]);
 
     // verified legal move
-    board.makeMove(nodeToExplore.move);
+    board.makeMove(node[node.leftToExplore].move);
 
-    tree.nodes.push_back(Node(board));
-    nodeToExplore.ptr = tree.nodes.size() - 1;
+    // `node` becomes invalid from here
+    tree.add(Node(board));
+
+    auto& nodeToExplore = tree[nodePtr][tree[nodePtr].leftToExplore];
+
+    nodeToExplore.ptr = tree.size() - 1;
 
     selectionLine.push_back(nodeToExplore.ptr);
 
@@ -149,7 +154,7 @@ void Mcts::backprop(State result)
         const auto nodePtr = selectionLine.back();
         selectionLine.pop_back();
 
-        auto& node = tree.nodes[nodePtr];
+        auto& node = tree[nodePtr];
 
         node.visits += 1;
 
@@ -157,5 +162,6 @@ void Mcts::backprop(State result)
             node.wins += 1;
 
         result = flipState(result);
+        board.undoMove();
     }
 }

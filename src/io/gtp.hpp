@@ -17,7 +17,7 @@ class GtpRunner
 
     private:
         Mcts searcher{};
-        std::uint16_t size = 5;
+        std::uint16_t size = 3;
         std::string storedMessage = "";
         std::unordered_map<std::string, std::function<void(GtpRunner&)>> commands{};
         int currId = -1;
