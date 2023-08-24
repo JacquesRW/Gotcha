@@ -77,6 +77,8 @@ class Board
             setStm(Colour::Black);
         }
 
+        void genLegal(std::vector<Tile>& moves);
+
         void makeMove(const Tile tile);
 
         bool tryMakeMove(const Tile tile);

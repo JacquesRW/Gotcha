@@ -13,8 +13,6 @@ struct Node
         state = board.gameState();
 
         const auto head = board.board.moveHead();
-        auto count = 0;
-
         for (auto move = head.first;; move = board.board[move].next)
         {
             const bool isLegal = board.tryMakeMove(move);
@@ -39,6 +37,7 @@ struct Node
     std::vector<MoveInfo> legalMoves{};
     std::uint16_t leftToExplore{};
     std::uint32_t visits{};
+    std::uint32_t wins{};
 };
 
 struct MoveInfo
@@ -55,15 +54,23 @@ struct MoveInfo
 
 struct SearchTree
 {
-    SearchTree(Board& board, std::int32_t cap)
+    SearchTree(Board& board)
     {
-        capacity = cap;
+        playouts = 0;
         nodes.push_back(Node(board));
     }
 
     SearchTree() {}
 
+    void clear(Board& board)
+    {
+        nodes.clear();
+        nodes.push_back(Node(board));
+        playouts = 0;
+    }
+
+    std::int32_t size() const { return static_cast<int32_t>(nodes.size()); }
+
     std::vector<Node> nodes{};
     std::uint64_t playouts{};
-    std::int32_t capacity{};
 };
