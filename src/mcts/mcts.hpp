@@ -3,21 +3,21 @@
 class Mcts
 {
     public:
-        Mcts(Board b)
+        Mcts(Board b, std::int32_t cap)
         {
             board = b;
-            tree = SearchTree(board);
+            tree = SearchTree(board, cap);
         }
 
     private:
         std::uint64_t getRandom();
 
-        Node& selectLeaf();
+        std::int32_t selectLeaf();
 
-        Node& expandNode(Node& node);
+        std::int32_t expandNode(std::int32_t nodePtr);
 
         Board board;
         SearchTree tree;
         std::uint64_t random = UINT64_C(2078630127);
-        std::vector<MoveInfo&> selectionLine{};
+        std::vector<std::int32_t> selectionLine{};
 };

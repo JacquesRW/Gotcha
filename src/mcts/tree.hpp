@@ -32,17 +32,13 @@ struct Node
         leftToExplore = legalMoves.size();
     }
 
-    Node()
-    {
-        state = State::Ongoing;
-    }
-
     [[nodiscard]] auto isTerminal() const { return state != State::Ongoing; }
     [[nodiscard]] auto numChildren() const { return legalMoves.size(); }
 
+    State state{};
     std::vector<MoveInfo> legalMoves{};
     std::uint16_t leftToExplore{};
-    State state{};
+    std::uint32_t visits{};
 };
 
 struct MoveInfo
@@ -50,24 +46,24 @@ struct MoveInfo
     MoveInfo(Tile tile)
     {
         move = tile;
-        child = std::make_unique<Node>(nullptr);
+        ptr = -1;
     }
 
     Tile move;
-    std::unique_ptr<Node> child;
-    std::uint32_t visits{};
+    std::int32_t ptr;
 };
 
 struct SearchTree
 {
-    SearchTree(Board& board)
+    SearchTree(Board& board, std::int32_t cap)
     {
-        rootNode = Node(board);
+        capacity = cap;
+        nodes.push_back(Node(board));
     }
 
     SearchTree() {}
 
-    Node rootNode{};
-    std::uint64_t nodes{};
+    std::vector<Node> nodes{};
     std::uint64_t playouts{};
+    std::int32_t capacity{};
 };
