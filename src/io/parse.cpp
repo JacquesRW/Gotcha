@@ -45,6 +45,10 @@ std::pair<Tile, Colour> parseMove(std::string &moveStr, std::uint16_t size)
     makeLower(tileStr);
 
     const auto colour = parseColour(colourStr);
+
+    if (tileStr == "pass")
+        return {Tile{}, colour};
+
     const auto columnStr = tileStr.at(0);
     const auto rowStr = splitAt(tileStr, columnStr).second;
 
