@@ -26,7 +26,7 @@ Tile Mcts::search()
 
     const auto& rootNode = tree[0];
     auto bestIdx = 0;
-    auto bestScore = 0.0;
+    auto worstScore = 1.0;
 
     for (auto i = 0; i < rootNode.numChildren(); i++)
     {
@@ -43,16 +43,16 @@ Tile Mcts::search()
 
         const auto score = wins / visits;
 
-        std::cout << tileToString(move.move, board.size()) << ": " << 100.0 * score << std::endl;
+        std::cout << tileToString(move.move, board.size()) << ": " << 100.0 * score << "% (" << node.wins << " / " << node.visits << ")" << std::endl;
 
-        if (score > bestScore)
+        if (score < worstScore)
         {
-            bestScore = score;
+            worstScore = score;
             bestIdx = i;
         }
     }
 
-    std::cout << "win probability: " << 100.0 * bestScore << std::endl;
+    std::cout << "win probability: " << 100.0 * (1.0 - worstScore) << std::endl;
 
     return rootNode[bestIdx].move;
 }
@@ -140,7 +140,7 @@ State Mcts::simulate()
 
     board.makeMove(randMove);
 
-    const auto result = flipState(simulate());
+    const auto result = simulate();
 
     board.undoMove();
 
@@ -158,10 +158,11 @@ void Mcts::backprop(State result)
 
         node.visits += 1;
 
-        if (result == State::Win)
+        if (board.sideToMove() == Colour::Black && result == State::Win)
+            node.wins += 1;
+        else if (board.sideToMove() == Colour::White && result == State::Loss)
             node.wins += 1;
 
-        result = flipState(result);
         board.undoMove();
     }
 }
