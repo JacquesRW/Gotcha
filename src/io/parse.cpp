@@ -12,6 +12,7 @@ void makeLower(std::string& str)
 
 Colour parseColour(std::string& str)
 {
+    makeLower(str);
     return (str.at(0) == 'b') ? Colour::Black : Colour::White;
 }
 

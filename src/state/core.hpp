@@ -22,6 +22,11 @@ enum struct State : std::int8_t
     Win = 1,
 };
 
+[[nodiscard]] constexpr auto flipState(State state)
+{
+    return static_cast<State>(-static_cast<std::int8_t>(state));
+}
+
 struct Vec4
 {
     std::array<uint16_t, 4> elements;
