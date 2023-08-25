@@ -17,6 +17,7 @@ GtpRunner::GtpRunner()
     commands.insert({"showboard", &GtpRunner::showBoard});
     commands.insert({"perft", &GtpRunner::perft});
     commands.insert({"stones", &GtpRunner::stones});
+    commands.insert({"get_komi", &GtpRunner::getKomi});
 }
 
 void GtpRunner::run()
@@ -156,4 +157,10 @@ void GtpRunner::perft()
     const auto depth = std::stoi(storedMessage);
     const auto count = searcher.board.runPerft(depth);
     reportSuccess("nodes " + std::to_string(count));
+}
+
+void GtpRunner::getKomi() const
+{
+    const auto komi = searcher.board.getKomi();
+    reportSuccess(std::to_string(komi));
 }
