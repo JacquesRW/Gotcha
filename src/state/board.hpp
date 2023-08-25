@@ -41,11 +41,15 @@ class BoardState
 
         void passMove() { passes++; }
 
+        State gameState(float komi) const;
+
         [[nodiscard]] auto isGameOver() const { return passes >= 2; }
         [[nodiscard]] auto sizeOf() const { return size * size; }
         [[nodiscard]] auto getHash() const { return hash; }
         [[nodiscard]] auto moveHead() const { return empty; }
+        [[nodiscard]] auto numStones() const { return stones; }
         [[nodiscard]] auto operator[](Tile tile) const { return tiles[tile.index()]; }
+        [[nodiscard]] auto width() const { return size; }
 
     private:
         LinkHead empty;
@@ -53,6 +57,7 @@ class BoardState
         std::uint16_t size;
         std::vector<LinkNode> tiles;
         std::vector<Group> groups;
+        std::array<std::uint16_t, 2> stones;
         Zobrist hash;
 };
 
@@ -67,9 +72,23 @@ class Board
             setStm(Colour::Black);
         }
 
+        Board()
+        {
+            board = BoardState(5);
+            setStm(Colour::Black);
+        }
+
+        void genLegal(std::vector<Tile>& moves);
+
+        void makeMove(const Tile tile);
+
         bool tryMakeMove(const Tile tile);
 
         void setStm(Colour colour) { stm = colour; }
+
+        void setKomi(float val) { komi = val; }
+
+        std::uint16_t size() const { return board.width(); }
 
         void undoMove()
         {
@@ -80,7 +99,14 @@ class Board
 
         void display(const bool showGroups) const;
 
+        std::uint64_t runPerft(uint8_t depth);
+
+        [[nodiscard]] auto stones() const { return board.numStones(); }
+        [[nodiscard]] auto gameState() const { return board.gameState(komi); }
+        [[nodiscard]] auto sideToMove() const { return stm; }
+
     private:
         Colour stm;
+        float komi;
         std::vector<BoardState> history;
 };

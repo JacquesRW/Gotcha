@@ -15,6 +15,13 @@ enum struct Colour : std::uint8_t
     return static_cast<Colour>(!static_cast<std::uint8_t>(colour));
 }
 
+enum struct State : std::int8_t
+{
+    Loss = -1,
+    Ongoing = 0,
+    Win = 1,
+};
+
 struct Vec4
 {
     std::array<uint16_t, 4> elements;
@@ -38,6 +45,8 @@ class Tile
         {
             tile = size * y + x;
         }
+
+        [[nodiscard]] constexpr auto operator==(const Tile other) const { return tile == other.tile; }
 
         [[nodiscard]] constexpr auto index() const { return tile; }
         [[nodiscard]] constexpr auto isNull() const { return tile == 1024; }

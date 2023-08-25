@@ -16,6 +16,7 @@ GtpRunner::GtpRunner()
     commands.insert({"genmove", &GtpRunner::genMove});
     commands.insert({"showboard", &GtpRunner::showBoard});
     commands.insert({"perft", &GtpRunner::perft});
+    commands.insert({"stones", &GtpRunner::stones});
 }
 
 void GtpRunner::run()
@@ -81,29 +82,29 @@ void GtpRunner::boardSize()
     if (newSize > 25)
         return reportFailure("unacceptable size");
     size = newSize;
-    board = Board(size);
+    searcher.board = Board(size);
     reportSuccess("");
 }
 
 void GtpRunner::clearBoard()
 {
-    board = Board(size);
+    searcher.board = Board(size);
     reportSuccess("");
 };
 
 void GtpRunner::komi()
 {
+    searcher.board.setKomi(std::stof(storedMessage));
     reportSuccess("");
 }
 
 void GtpRunner::showBoard() const
 {
-    board.display(false);
+    searcher.board.display(false);
 }
 
 void GtpRunner::play()
 {
-
     std::pair<Tile, Colour> move;
     try { move = parseMove(storedMessage, size); }
     catch(...)
@@ -115,78 +116,40 @@ void GtpRunner::play()
     const auto tile = move.first;
     const auto colour = move.second;
 
-    board.setStm(colour);
-    const auto isLegal = board.tryMakeMove(tile);
+    searcher.board.setStm(colour);
+    const auto isLegal = searcher.board.tryMakeMove(tile);
 
-    if (!isLegal)
+    if (isLegal)
+        reportSuccess("");
+    else
         reportFailure("illegal move");
-
-    reportSuccess("");
 }
 
 void GtpRunner::genMove()
 {
     const auto colour = parseColour(storedMessage);
 
-    board.setStm(colour);
+    searcher.board.setStm(colour);
 
-    const auto head = board.board.moveHead();
+    const auto move = searcher.search();
 
-    Tile move;
-    for (move = head.first;; move = board.board[move].next)
-    {
-        const bool isLegal = board.tryMakeMove(move);
-        if (!isLegal)
-            continue;
-        else
-            // at the moment just return first legal move
-            break;
+    searcher.board.makeMove(move);
 
-
-        board.undoMove();
-
-        if (move.isNull())
-            break;
-    }
-
-    const auto moveStr = tileToString(move);
-
+    const auto moveStr = tileToString(move, searcher.board.size());
     reportSuccess(moveStr);
 }
 
-std::uint64_t runPerft(Board& board, uint8_t depth)
+void GtpRunner::stones()
 {
-    if (depth == 0)
-        return 1;
-
-    if (board.board.isGameOver())
-        return 0;
-
-    const auto head = board.board.moveHead();
-    auto count = 0;
-
-    for (auto move = head.first;; move = board.board[move].next)
-    {
-        const bool isLegal = board.tryMakeMove(move);
-        if (!isLegal)
-            continue;
-
-        const auto subCount = runPerft(board, depth - 1);
-
-        count += subCount;
-
-        board.undoMove();
-
-        if (move.isNull())
-            break;
-    }
-
-    return count;
+    const auto numStones = searcher.board.stones();
+    const auto black = std::to_string(numStones[0]);
+    const auto white = std::to_string(numStones[1]);
+    reportSuccess("black " + black + "white " + white);
 }
 
 void GtpRunner::perft()
 {
     const auto depth = std::stoi(storedMessage);
-    const auto count = runPerft(board, depth);
+    const auto count = searcher.board.runPerft(depth);
     reportSuccess("nodes " + std::to_string(count));
 }

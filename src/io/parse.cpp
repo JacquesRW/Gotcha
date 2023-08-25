@@ -45,6 +45,10 @@ std::pair<Tile, Colour> parseMove(std::string &moveStr, std::uint16_t size)
     makeLower(tileStr);
 
     const auto colour = parseColour(colourStr);
+
+    if (tileStr == "pass")
+        return {Tile{}, colour};
+
     const auto columnStr = tileStr.at(0);
     const auto rowStr = splitAt(tileStr, columnStr).second;
 
@@ -62,10 +66,13 @@ std::pair<Tile, Colour> parseMove(std::string &moveStr, std::uint16_t size)
     return {tile, colour};
 }
 
-std::string tileToString(Tile tile)
+std::string tileToString(Tile tile, std::uint16_t size)
 {
-    auto column = tile.index() % 19;
-    const auto row = tile.index() / 19;
+    if (tile.index() == 1024)
+        return "pass";
+
+    auto column = tile.index() % size;
+    const auto row = tile.index() / size;
 
     if (column > 7)
         column++;
