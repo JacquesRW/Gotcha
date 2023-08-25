@@ -37,11 +37,13 @@ class BoardState
 
         void killGroup(const std::uint16_t groupId);
 
-        void display(const bool showGroups) const;
+        void display(const bool showGroups, float komi) const;
 
         void passMove() { passes++; }
 
         State gameState(float komi) const;
+
+        float getScore(float komi) const;
 
         std::vector<Territory> getTerritory() const;
 

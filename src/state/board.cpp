@@ -117,6 +117,15 @@ State BoardState::gameState(float komi) const
     if (!isGameOver())
         return State::Ongoing;
 
+    const auto netScore = getScore(komi);
+
+    const auto winBlack = netScore > 0 ? State::Win : State::Loss;
+
+    return winBlack;
+}
+
+float BoardState::getScore(float komi) const
+{
     auto scoreBlack = stones[0];
     auto scoreWhite = stones[1];
 
@@ -133,11 +142,7 @@ State BoardState::gameState(float komi) const
             scoreWhite += 1;
     }
 
-    const auto netScore = static_cast<float>(scoreBlack) - static_cast<float>(scoreWhite) - komi;
-
-    const auto winBlack = netScore > 0 ? State::Win : State::Loss;
-
-    return winBlack;
+    return static_cast<float>(scoreBlack) - static_cast<float>(scoreWhite) - komi;
 }
 
 std::vector<Territory> BoardState::getTerritory() const
@@ -159,9 +164,16 @@ std::vector<Territory> BoardState::getTerritory() const
         {
             const auto offset = dirs.elements[i];
             const auto adjTile = Tile(tile.index() + offset);
-            const auto stoneAt = groups[tiles[adjTile.index()].group].belongsTo;
-            reachBlack |= stoneAt == Colour::Black;
-            reachWhite |= stoneAt == Colour::White;
+
+            const auto groupId = tiles[adjTile.index()].group;
+            if (groupId == 1024)
+                continue;
+
+            const auto stoneAt = groups[groupId].belongsTo;
+            if (stoneAt == Colour::Black)
+                reachBlack = true;
+            if (stoneAt == Colour::White)
+                reachWhite = true;
         }
 
         if (reachBlack || reachWhite)
@@ -267,7 +279,7 @@ bool Board::tryMakeMove(const Tile tile)
 
 void Board::display(const bool showGroups) const
 {
-    board.display(showGroups);
+    board.display(showGroups, komi);
     const auto side = stm == Colour::Black ? "black" : "white";
     std::cout << "STM: " << side << std::endl;
     std::cout << "Moves Played: " << history.size() << "\n" << std::endl;
@@ -303,9 +315,10 @@ std::uint64_t Board::runPerft(uint8_t depth)
     return count;
 }
 
-void BoardState::display(const bool showGroups) const
+void BoardState::display(const bool showGroups, float komi) const
 {
     std::cout << "=\nBoard:" << std::endl;
+    std::cout << "Score: " << getScore(komi) << " (komi = " << komi << ")" << std::endl;
     hash.display();
 
     for (auto i = 0; i < size; i++)
