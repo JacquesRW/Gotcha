@@ -58,6 +58,7 @@ class Timer
         void reset()
         {
             usingMainTime = mainTime > 0;
+            remainingTime = usingMainTime ? mainTime : byoYomi;
             remainingStones = byoYomiStones;
         }
 

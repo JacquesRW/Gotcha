@@ -88,6 +88,7 @@ void GtpRunner::boardSize()
     const auto komi = searcher.board.getKomi();
     searcher.board = Board(size);
     searcher.board.setKomi(komi);
+    searcher.timer.reset();
     reportSuccess("");
 }
 
@@ -96,6 +97,7 @@ void GtpRunner::clearBoard()
     const auto komi = searcher.board.getKomi();
     searcher.board = Board(size);
     searcher.board.setKomi(komi);
+    searcher.timer.reset();
     reportSuccess("");
 };
 
