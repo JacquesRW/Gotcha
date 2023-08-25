@@ -9,7 +9,6 @@ Tile Mcts::search()
 
     for (auto nodes = 0; nodes < maxNodes; nodes++)
     {
-        std::cout << tree.size() << std::endl;
         // Stage 1: Select a lead node already in the search tree.
         const auto selectedNode = selectLeaf();
 
@@ -30,7 +29,7 @@ Tile Mcts::search()
 
     const auto& rootNode = tree[0];
     auto bestIdx = 0;
-    auto worstScore = 1.0;
+    auto bestScore = 0.0;
 
     for (auto i = 0; i < rootNode.numChildren(); i++)
     {
@@ -49,14 +48,14 @@ Tile Mcts::search()
 
         std::cout << tileToString(move.move, board.size()) << ": " << 100.0 * score << "% (" << node.wins << " / " << node.visits << ")" << std::endl;
 
-        if (score < worstScore)
+        if (score > bestScore)
         {
-            worstScore = score;
+            bestScore = score;
             bestIdx = i;
         }
     }
 
-    std::cout << "win probability: " << 100.0 * (1.0 - worstScore) << std::endl;
+    std::cout << "win probability: " << 100.0 * bestScore << std::endl;
 
     return rootNode[bestIdx].move;
 }
@@ -197,9 +196,9 @@ void Mcts::backprop(State result)
 
         node.visits += 1;
 
-        if (board.sideToMove() == Colour::Black && result == State::Win)
+        if (board.sideToMove() == Colour::Black && result == State::Loss)
             node.wins += 1;
-        else if (board.sideToMove() == Colour::White && result == State::Loss)
+        else if (board.sideToMove() == Colour::White && result == State::Win)
             node.wins += 1;
 
         board.undoMove();
