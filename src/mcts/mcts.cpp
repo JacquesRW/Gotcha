@@ -12,7 +12,7 @@ Tile Mcts::search()
     board.nodes = 0;
 
     if (logging)
-        std::cout << "info allocated " << allocatedTime << "ms" << std::endl;
+        std::cout << "# info allocated " << allocatedTime << "ms" << std::endl;
 
     timer.start();
 
@@ -60,8 +60,8 @@ Tile Mcts::search()
 
         if (logging)
         {
-            std::cout << tileToString(move.move, board.size()) << ": " << 100.0 * score;
-            std::cout << "% (" << node.wins << " / " << node.visits << ")" << std::endl;
+            std::cout << "# info move " << tileToString(move.move, board.size());
+            std::cout << " score " << 100.0 * score << "% (" << node.wins << "/" << node.visits << ")" << std::endl;
         }
 
         if (score > bestScore)
@@ -75,7 +75,7 @@ Tile Mcts::search()
 
     if (logging)
     {
-        std::cout << "info time " << elapsed;
+        std::cout << "# info time " << elapsed;
         std::cout << " nodes " << board.nodes;
         std::cout << " rollouts " << rollouts;
         std::cout << " score " << 100.0 * bestScore << "%";

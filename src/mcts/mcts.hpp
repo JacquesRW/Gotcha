@@ -5,7 +5,7 @@ class Mcts
 {
     public:
         Board board;
-        bool logging = false;
+        bool logging = true;
 
         Mcts()
         {
