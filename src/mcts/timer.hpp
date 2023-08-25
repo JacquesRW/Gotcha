@@ -45,7 +45,7 @@ class Timer
             remainingStones -= !wasPass;
 
             if ((usingMainTime && (remainingTime <= 0))
-                || (!usingMainTime && (byoYomiStones == 0)))
+                || (!usingMainTime && (remainingStones == 0)))
             {
                 if (!usingMainTime)
                     remainingTime = 0;

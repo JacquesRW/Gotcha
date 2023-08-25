@@ -13,7 +13,7 @@ class Mcts
             board = Board(3);
             tree = SearchTree(board);
             maxNodes = 1000000;
-            timer = Timer(0, 1000, 1);
+            timer = Timer(0, 3, 1);
         }
 
         Tile search();
