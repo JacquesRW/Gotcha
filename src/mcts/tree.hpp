@@ -47,13 +47,7 @@ class Node
         [[nodiscard]] auto isTerminal() const { return state != State::Ongoing; }
         [[nodiscard]] auto numChildren() const { return legalMoves.size(); }
 
-        [[nodiscard]] auto& operator[](std::int32_t i) {
-            try { return legalMoves.at(i); }
-            catch(std::out_of_range e) {
-                std::cout << numChildren() << " " << i << std::endl;
-                exit(EXIT_FAILURE);
-            }
-        }
+        [[nodiscard]] auto& operator[](std::int32_t i) { return legalMoves.at(i); }
         [[nodiscard]] const auto& operator[](std::int32_t i) const { return legalMoves.at(i); }
 
         State state{};
