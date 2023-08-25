@@ -6,6 +6,13 @@
 
 Tile Mcts::search()
 {
+    const auto allocatedTime = timer.alloc();
+
+    if (logging)
+        std::cout << "info allocated " << allocatedTime << "ms" << std::endl;
+
+    timer.start();
+
     tree.clear(board);
 
     for (auto nodes = 0; nodes < maxNodes; nodes++)
@@ -23,6 +30,14 @@ Tile Mcts::search()
 
         // Stage 4: Backpropogate the result towards the root.
         backprop(result);
+
+        const auto elapsed = timer.elapsed();
+        if (elapsed >= allocatedTime)
+        {
+            if (logging)
+                std::cout << "info time " << elapsed << "ms" << std::endl;
+            break;
+        }
     }
 
     const auto& rootNode = tree[0];
@@ -60,7 +75,11 @@ Tile Mcts::search()
     if (logging)
         std::cout << "win probability: " << 100.0 * bestScore << std::endl;
 
-    return rootNode[bestIdx].move;
+    const auto bestMove = rootNode[bestIdx].move;
+
+    timer.stop(bestMove.isNull());
+
+    return bestMove;
 }
 
 double Mcts::getUct(const Node& node, std::uint32_t childIdx)

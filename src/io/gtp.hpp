@@ -57,4 +57,8 @@ class GtpRunner
         void perft();
 
         void getKomi() const;
+
+        void timeSettings();
+
+        void logging();
 };

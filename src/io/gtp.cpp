@@ -18,6 +18,8 @@ GtpRunner::GtpRunner()
     commands.insert({"perft", &GtpRunner::perft});
     commands.insert({"stones", &GtpRunner::stones});
     commands.insert({"get_komi", &GtpRunner::getKomi});
+    commands.insert({"time_settings", &GtpRunner::timeSettings});
+    commands.insert({"logging", &GtpRunner::logging});
 }
 
 void GtpRunner::run()
@@ -163,4 +165,20 @@ void GtpRunner::getKomi() const
 {
     const auto komi = searcher.board.getKomi();
     reportSuccess(std::to_string(komi));
+}
+
+void GtpRunner::timeSettings()
+{
+    const auto [mainTimeStr, rem] = splitAt(storedMessage, ' ');
+    const auto [byoYomiStr, byoYomiStonesStr] = splitAt(rem, ' ');
+
+    const auto mainTime = std::stoi(mainTimeStr);
+    const auto byoYomi = std::stoi(byoYomiStr);
+    const auto byoYomiStones = std::stoi(byoYomiStonesStr);
+}
+
+void GtpRunner::logging()
+{
+    searcher.logging = !searcher.logging;
+    reportSuccess("");
 }
