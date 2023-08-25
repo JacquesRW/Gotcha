@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cmath>
 #include <iostream>
 
 #include "mcts.hpp"
@@ -6,10 +7,6 @@
 Tile Mcts::search()
 {
     tree.clear(board);
-    random = UINT64_C(2078630127);
-
-    assert(flipState(State::Win) == State::Loss);
-    assert(flipState(State::Loss) == State::Win);
 
     for (auto nodes = 0; nodes < maxNodes; nodes++)
     {
@@ -26,9 +23,6 @@ Tile Mcts::search()
 
         // Stage 4: Backpropogate the result towards the root.
         backprop(result);
-
-        if (tree.size() >= capacity)
-            break;
     }
 
     const auto& rootNode = tree[0];
@@ -50,7 +44,11 @@ Tile Mcts::search()
 
         const auto score = wins / visits;
 
-        std::cout << tileToString(move.move, board.size()) << ": " << 100.0 * score << "% (" << node.wins << " / " << node.visits << ")" << std::endl;
+        if (logging)
+        {
+            std::cout << tileToString(move.move, board.size()) << ": " << 100.0 * score;
+            std::cout << "% (" << node.wins << " / " << node.visits << ")" << std::endl;
+        }
 
         if (score > bestScore)
         {
@@ -59,7 +57,8 @@ Tile Mcts::search()
         }
     }
 
-    std::cout << "win probability: " << 100.0 * bestScore << std::endl;
+    if (logging)
+        std::cout << "win probability: " << 100.0 * bestScore << std::endl;
 
     return rootNode[bestIdx].move;
 }

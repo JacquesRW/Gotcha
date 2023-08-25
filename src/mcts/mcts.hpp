@@ -9,8 +9,7 @@ class Mcts
         {
             board = Board(3);
             tree = SearchTree(board);
-            capacity = 1000;
-            maxNodes = 2000;
+            maxNodes = 1000;
         }
 
         Tile search();
@@ -32,7 +31,7 @@ class Mcts
 
         SearchTree tree;
         std::uint64_t random = UINT64_C(2078630127);
-        std::int32_t capacity{};
         std::int32_t maxNodes{};
         std::vector<std::int32_t> selectionLine{};
+        bool logging = false;
 };
