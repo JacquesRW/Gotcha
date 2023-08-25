@@ -107,7 +107,7 @@ double Mcts::getUct(const Node& node, std::uint32_t childIdx)
 
     const auto w = static_cast<double>(child.wins);
 
-    return w / n + std::sqrt(std::log(N) / n);
+    return w / n + std::sqrt(2.0 * std::log(N) / n);
 }
 
 std::uint64_t Mcts::getRandom()
@@ -203,7 +203,7 @@ State Mcts::simulate()
 
     board.makeMove(randMove);
 
-    const auto result = simulate();
+    const auto result = flipState(simulate());
 
     board.undoMove();
 
