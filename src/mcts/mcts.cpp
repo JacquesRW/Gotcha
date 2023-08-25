@@ -192,6 +192,8 @@ void Mcts::backprop(State result)
         const auto nodePtr = selectionLine.back();
         selectionLine.pop_back();
 
+        result = flipState(result);
+
         auto& node = tree[nodePtr];
 
         node.visits += 1;
@@ -199,7 +201,6 @@ void Mcts::backprop(State result)
         if (result == State::Win)
             node.wins += 1;
 
-        result = flipState(result);
         board.undoMove();
     }
 

@@ -116,6 +116,6 @@ class Board
 
     private:
         Colour stm;
-        float komi;
+        float komi = 0.5;
         std::vector<BoardState> history;
 };
