@@ -8,7 +8,7 @@ class Timer
         {
             mainTime = static_cast<std::int64_t>(mT) * 1000;
             byoYomi = static_cast<std::int64_t>(bY) * 1000;
-            byoYomiStones = static_cast<std::int64_t>(bYS) * 1000;
+            byoYomiStones = static_cast<std::int64_t>(bYS);
             usingMainTime = mainTime > 0;
             remainingTime = usingMainTime ? mainTime : byoYomi;
             remainingStones = byoYomiStones;
