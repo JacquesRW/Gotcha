@@ -43,6 +43,8 @@ class BoardState
 
         State gameState(float komi) const;
 
+        std::vector<Territory> getTerritory() const;
+
         [[nodiscard]] auto isGameOver() const { return passes >= 2; }
         [[nodiscard]] auto sizeOf() const { return size * size; }
         [[nodiscard]] auto getHash() const { return hash; }

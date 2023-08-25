@@ -6,6 +6,10 @@
 Tile Mcts::search()
 {
     tree.clear(board);
+    random = UINT64_C(2078630127);
+
+    assert(flipState(State::Win) == State::Loss);
+    assert(flipState(State::Loss) == State::Win);
 
     for (auto nodes = 0; nodes < maxNodes; nodes++)
     {
@@ -178,7 +182,7 @@ State Mcts::simulate()
 
     board.makeMove(randMove);
 
-    const auto result = flipState(simulate());
+    const auto result = simulate();
 
     board.undoMove();
 
@@ -192,8 +196,6 @@ void Mcts::backprop(State result)
         const auto nodePtr = selectionLine.back();
         selectionLine.pop_back();
 
-        result = flipState(result);
-
         auto& node = tree[nodePtr];
 
         node.visits += 1;
@@ -202,6 +204,7 @@ void Mcts::backprop(State result)
             node.wins += 1;
 
         board.undoMove();
+        result = flipState(result);
     }
 
     tree[0].visits += 1;

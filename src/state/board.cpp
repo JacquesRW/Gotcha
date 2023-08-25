@@ -1,3 +1,4 @@
+#include <deque>
 #include <iostream>
 #include <iomanip>
 
@@ -116,12 +117,86 @@ State BoardState::gameState(float komi) const
     if (!isGameOver())
         return State::Ongoing;
 
-    auto scoreBlack = static_cast<float>(stones[0]);
-    auto scoreWhite = static_cast<float>(stones[1]) + komi;
+    auto scoreBlack = stones[0];
+    auto scoreWhite = stones[1];
 
-    const auto winBlack = scoreBlack > scoreWhite ? State::Win : State::Loss;
+    const auto head = empty;
+
+    const auto territory = getTerritory();
+
+    for (auto tile = head.first; !tile.isNull(); tile = tiles[tile.index()].next)
+    {
+        const auto ownedBy = territory[tile.index()];
+        if (ownedBy == Territory::Black)
+            scoreBlack += 1;
+        else if (ownedBy == Territory::White)
+            scoreWhite += 1;
+    }
+
+    const auto netScore = static_cast<float>(scoreBlack) - static_cast<float>(scoreWhite) - komi;
+
+    const auto winBlack = netScore > 0 ? State::Win : State::Loss;
 
     return winBlack;
+}
+
+std::vector<Territory> BoardState::getTerritory() const
+{
+    auto territory = std::vector<Territory>(sizeOf(), Territory::Neither);
+
+    std::deque<Tile> todo{};
+
+    const auto head = empty;
+
+    for (auto tile = head.first; !tile.isNull(); tile = tiles[tile.index()].next)
+    {
+        auto reachBlack = false;
+        auto reachWhite = false;
+
+        const auto dirs = tile.getAdjacent(size);
+
+        for (auto i = 0; i < dirs.length; i++)
+        {
+            const auto offset = dirs.elements[i];
+            const auto adjTile = Tile(tile.index() + offset);
+            const auto stoneAt = groups[tiles[adjTile.index()].group].belongsTo;
+            reachBlack |= stoneAt == Colour::Black;
+            reachWhite |= stoneAt == Colour::White;
+        }
+
+        if (reachBlack || reachWhite)
+        {
+            territory[tile.index()] = territoryFrom(reachBlack, reachWhite);
+            todo.push_back(tile);
+        }
+    }
+
+    while (todo.size() > 0)
+    {
+        const auto curr = todo.front();
+        todo.pop_front();
+
+        const auto currState = territory[curr.index()];
+
+        const auto dirs = curr.getAdjacent(size);
+        for (auto i = 0; i < dirs.length; i++)
+        {
+            const auto offset = dirs.elements[i];
+            const auto adjTile = Tile(curr.index() + offset);
+            if (tiles[curr.index()].group == 1024)
+            {
+                const auto oldState = territory[adjTile.index()];
+                const auto newState = territoryMerge(oldState, currState);
+                if (newState != oldState)
+                {
+                    territory[adjTile.index()] = newState;
+                    todo.push_back(adjTile);
+                }
+            }
+        }
+    }
+
+    return territory;
 }
 
 void Board::genLegal(std::vector<Tile>& moves)
