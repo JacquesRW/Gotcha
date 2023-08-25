@@ -111,7 +111,7 @@ void BoardState::killGroup(const std::uint16_t groupId)
     empty.join(dying.stones, tiles);
 }
 
-State BoardState::gameState(Colour stm, float komi) const
+State BoardState::gameState(float komi) const
 {
     if (!isGameOver())
         return State::Ongoing;
@@ -120,9 +120,6 @@ State BoardState::gameState(Colour stm, float komi) const
     auto scoreWhite = static_cast<float>(stones[1]) + komi;
 
     const auto winBlack = scoreBlack > scoreWhite ? State::Win : State::Loss;
-
-    if (stm == Colour::White)
-        return flipState(winBlack);
 
     return winBlack;
 }

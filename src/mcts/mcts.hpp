@@ -9,7 +9,7 @@ class Mcts
         {
             board = Board(3);
             tree = SearchTree(board);
-            capacity = 10000;
+            capacity = 1000;
         }
 
         Tile search();

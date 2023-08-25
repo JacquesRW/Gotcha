@@ -41,7 +41,7 @@ class BoardState
 
         void passMove() { passes++; }
 
-        State gameState(Colour stm, float komi) const;
+        State gameState(float komi) const;
 
         [[nodiscard]] auto isGameOver() const { return passes >= 2; }
         [[nodiscard]] auto sizeOf() const { return size * size; }
@@ -102,7 +102,8 @@ class Board
         std::uint64_t runPerft(uint8_t depth);
 
         [[nodiscard]] auto stones() const { return board.numStones(); }
-        [[nodiscard]] auto gameState() const { return board.gameState(stm, komi); }
+        [[nodiscard]] auto gameState() const { return board.gameState(komi); }
+        [[nodiscard]] auto sideToMove() const { return stm; }
 
     private:
         Colour stm;

@@ -133,6 +133,8 @@ void GtpRunner::genMove()
 
     const auto move = searcher.search();
 
+    searcher.board.makeMove(move);
+
     const auto moveStr = tileToString(move, searcher.board.size());
     reportSuccess(moveStr);
 }
