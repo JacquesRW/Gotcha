@@ -1,17 +1,24 @@
 #include <cassert>
+#include <cmath>
 #include <iostream>
 
 #include "mcts.hpp"
 
 Tile Mcts::search()
 {
+    const auto allocatedTime = timer.alloc();
+    auto elapsed = 0;
+    auto rollouts = 0;
+    board.nodes = 0;
+
+    if (logging)
+        std::cout << "# info allocated " << allocatedTime << "ms" << std::endl;
+
+    timer.start();
+
     tree.clear(board);
-    random = UINT64_C(2078630127);
 
-    assert(flipState(State::Win) == State::Loss);
-    assert(flipState(State::Loss) == State::Win);
-
-    for (auto nodes = 0; nodes < maxNodes; nodes++)
+    for (rollouts = 1; rollouts <= maxNodes; rollouts++)
     {
         // Stage 1: Select a lead node already in the search tree.
         const auto selectedNode = selectLeaf();
@@ -19,7 +26,7 @@ Tile Mcts::search()
         // Stage 2: If not a terminal node, pick a child of the leaf
         // node that isn't currently in the tree.
         if (selectedNode != -1)
-            const auto newNode = expandNode(selectedNode);
+            expandNode(selectedNode);
 
         // Stage 3: Randomly simulate the outcome of the game from there.
         const auto result = simulate();
@@ -27,7 +34,8 @@ Tile Mcts::search()
         // Stage 4: Backpropogate the result towards the root.
         backprop(result);
 
-        if (tree.size() >= capacity)
+        elapsed = timer.elapsed();
+        if (elapsed >= allocatedTime)
             break;
     }
 
@@ -50,7 +58,11 @@ Tile Mcts::search()
 
         const auto score = wins / visits;
 
-        std::cout << tileToString(move.move, board.size()) << ": " << 100.0 * score << "% (" << node.wins << " / " << node.visits << ")" << std::endl;
+        if (logging)
+        {
+            std::cout << "# info move " << tileToString(move.move, board.size());
+            std::cout << " score " << 100.0 * score << "% (" << node.wins << "/" << node.visits << ")" << std::endl;
+        }
 
         if (score > bestScore)
         {
@@ -59,9 +71,20 @@ Tile Mcts::search()
         }
     }
 
-    std::cout << "win probability: " << 100.0 * bestScore << std::endl;
+    const auto bestMove = rootNode[bestIdx].move;
 
-    return rootNode[bestIdx].move;
+    if (logging)
+    {
+        std::cout << "# info time " << elapsed;
+        std::cout << " nodes " << board.nodes;
+        std::cout << " rollouts " << rollouts;
+        std::cout << " score " << 100.0 * bestScore << "%";
+        std::cout << " pv " << tileToString(bestMove, board.size()) << std::endl;
+    }
+
+    timer.stop(bestMove.isNull());
+
+    return bestMove;
 }
 
 double Mcts::getUct(const Node& node, std::uint32_t childIdx)
@@ -137,7 +160,7 @@ std::int32_t Mcts::selectLeaf()
     return nodePtr;
 }
 
-std::int32_t Mcts::expandNode(const std::int32_t nodePtr)
+void Mcts::expandNode(const std::int32_t nodePtr)
 {
     auto& node = tree[nodePtr];
 
@@ -160,8 +183,6 @@ std::int32_t Mcts::expandNode(const std::int32_t nodePtr)
     nodeToExplore.ptr = tree.size() - 1;
 
     selectionLine.push_back(nodeToExplore.ptr);
-
-    return nodeToExplore.ptr;
 };
 
 State Mcts::simulate()

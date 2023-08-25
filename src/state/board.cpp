@@ -231,6 +231,7 @@ void Board::genLegal(std::vector<Tile>& moves)
 
 void Board::makeMove(const Tile tile)
 {
+    nodes++;
     history.push_back(board);
     const auto moving = stm;
     stm = flipColour(stm);

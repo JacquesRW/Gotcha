@@ -69,6 +69,7 @@ class Board
 {
     public:
         BoardState board;
+        std::uint64_t nodes{};
 
         Board(const std::uint16_t withSize)
         {
