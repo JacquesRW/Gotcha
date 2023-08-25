@@ -33,6 +33,8 @@ class Mcts
 
         void backprop(State result);
 
+        void genViable(std::vector<Tile>& moves);
+
         SearchTree tree;
         std::uint64_t random = UINT64_C(2078630127);
         std::int32_t maxNodes{};
