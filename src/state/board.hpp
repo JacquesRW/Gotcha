@@ -105,6 +105,7 @@ class Board
 
         std::uint64_t runPerft(uint8_t depth);
 
+        [[nodiscard]] float getKomi() const { return komi; }
         [[nodiscard]] auto stones() const { return board.numStones(); }
         [[nodiscard]] auto sideToMove() const { return stm; }
 

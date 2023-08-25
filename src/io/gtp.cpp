@@ -82,13 +82,17 @@ void GtpRunner::boardSize()
     if (newSize > 25)
         return reportFailure("unacceptable size");
     size = newSize;
+    const auto komi = searcher.board.getKomi();
     searcher.board = Board(size);
+    searcher.board.setKomi(komi);
     reportSuccess("");
 }
 
 void GtpRunner::clearBoard()
 {
+    const auto komi = searcher.board.getKomi();
     searcher.board = Board(size);
+    searcher.board.setKomi(komi);
     reportSuccess("");
 };
 
