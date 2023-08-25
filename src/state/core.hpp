@@ -27,6 +27,28 @@ enum struct State : std::int8_t
     return static_cast<State>(-static_cast<std::int8_t>(state));
 }
 
+enum struct Territory : std::uint8_t
+{
+    Neither = 0,
+    Black = 1,
+    White = 2,
+    Both = 3,
+};
+
+[[nodiscard]] constexpr auto territoryFrom(bool black, bool white)
+{
+    const auto blackVal = static_cast<std::uint8_t>(black);
+    const auto whiteVal = static_cast<std::uint8_t>(white);
+    return static_cast<Territory>(blackVal + 2 * whiteVal);
+}
+
+[[nodiscard]] constexpr auto territoryMerge(Territory t1, Territory t2)
+{
+    return static_cast<Territory>(
+        static_cast<std::uint8_t>(t1) | static_cast<std::uint8_t>(t2)
+    );
+}
+
 struct Vec4
 {
     std::array<uint16_t, 4> elements;

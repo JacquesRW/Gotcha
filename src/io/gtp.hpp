@@ -55,4 +55,6 @@ class GtpRunner
         void stones();
 
         void perft();
+
+        void getKomi() const;
 };

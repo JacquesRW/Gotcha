@@ -17,6 +17,7 @@ GtpRunner::GtpRunner()
     commands.insert({"showboard", &GtpRunner::showBoard});
     commands.insert({"perft", &GtpRunner::perft});
     commands.insert({"stones", &GtpRunner::stones});
+    commands.insert({"get_komi", &GtpRunner::getKomi});
 }
 
 void GtpRunner::run()
@@ -82,13 +83,17 @@ void GtpRunner::boardSize()
     if (newSize > 25)
         return reportFailure("unacceptable size");
     size = newSize;
+    const auto komi = searcher.board.getKomi();
     searcher.board = Board(size);
+    searcher.board.setKomi(komi);
     reportSuccess("");
 }
 
 void GtpRunner::clearBoard()
 {
+    const auto komi = searcher.board.getKomi();
     searcher.board = Board(size);
+    searcher.board.setKomi(komi);
     reportSuccess("");
 };
 
@@ -152,4 +157,10 @@ void GtpRunner::perft()
     const auto depth = std::stoi(storedMessage);
     const auto count = searcher.board.runPerft(depth);
     reportSuccess("nodes " + std::to_string(count));
+}
+
+void GtpRunner::getKomi() const
+{
+    const auto komi = searcher.board.getKomi();
+    reportSuccess(std::to_string(komi));
 }

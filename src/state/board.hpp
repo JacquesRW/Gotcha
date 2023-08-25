@@ -37,11 +37,15 @@ class BoardState
 
         void killGroup(const std::uint16_t groupId);
 
-        void display(const bool showGroups) const;
+        void display(const bool showGroups, float komi) const;
 
         void passMove() { passes++; }
 
         State gameState(float komi) const;
+
+        float getScore(float komi) const;
+
+        std::vector<Territory> getTerritory() const;
 
         [[nodiscard]] auto isGameOver() const { return passes >= 2; }
         [[nodiscard]] auto sizeOf() const { return size * size; }
@@ -101,6 +105,7 @@ class Board
 
         std::uint64_t runPerft(uint8_t depth);
 
+        [[nodiscard]] float getKomi() const { return komi; }
         [[nodiscard]] auto stones() const { return board.numStones(); }
         [[nodiscard]] auto sideToMove() const { return stm; }
 
