@@ -102,8 +102,17 @@ class Board
         std::uint64_t runPerft(uint8_t depth);
 
         [[nodiscard]] auto stones() const { return board.numStones(); }
-        [[nodiscard]] auto gameState() const { return board.gameState(komi); }
         [[nodiscard]] auto sideToMove() const { return stm; }
+
+        [[nodiscard]] auto gameState() const
+        {
+            const auto blackWin = board.gameState(komi);
+
+            if (stm == Colour::White)
+                return flipState(blackWin);
+
+            return blackWin;
+        }
 
     private:
         Colour stm;

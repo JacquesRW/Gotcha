@@ -178,7 +178,7 @@ State Mcts::simulate()
 
     board.makeMove(randMove);
 
-    const auto result = simulate();
+    const auto result = flipState(simulate());
 
     board.undoMove();
 
@@ -196,11 +196,10 @@ void Mcts::backprop(State result)
 
         node.visits += 1;
 
-        if (board.sideToMove() == Colour::Black && result == State::Loss)
-            node.wins += 1;
-        else if (board.sideToMove() == Colour::White && result == State::Win)
+        if (result == State::Win)
             node.wins += 1;
 
+        result = flipState(result);
         board.undoMove();
     }
 
