@@ -52,8 +52,16 @@ class BoardState
         [[nodiscard]] auto getHash() const { return hash; }
         [[nodiscard]] auto moveHead() const { return empty; }
         [[nodiscard]] auto numStones() const { return stones; }
-        [[nodiscard]] auto operator[](Tile tile) const { return tiles[tile.index()]; }
+        [[nodiscard]] auto operator[](Tile tile) const { return tiles.at(tile.index()); }
         [[nodiscard]] auto width() const { return size; }
+        [[nodiscard]] auto belongsTo(Tile tile)
+        {
+            const auto id = tiles.at(tile.index()).group;
+            if (id == 1024)
+                return Colour::None;
+
+            return groups[id].belongsTo;
+        }
 
     private:
         LinkHead empty;

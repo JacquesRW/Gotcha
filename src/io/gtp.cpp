@@ -88,6 +88,7 @@ void GtpRunner::boardSize()
     const auto komi = searcher.board.getKomi();
     searcher.board = Board(size);
     searcher.board.setKomi(komi);
+    searcher.timer.reset();
     reportSuccess("");
 }
 
@@ -96,6 +97,7 @@ void GtpRunner::clearBoard()
     const auto komi = searcher.board.getKomi();
     searcher.board = Board(size);
     searcher.board.setKomi(komi);
+    searcher.timer.reset();
     reportSuccess("");
 };
 
@@ -175,6 +177,8 @@ void GtpRunner::timeSettings()
     const auto mainTime = std::stoi(mainTimeStr);
     const auto byoYomi = std::stoi(byoYomiStr);
     const auto byoYomiStones = std::stoi(byoYomiStonesStr);
+    searcher.timer = Timer(mainTime, byoYomi, byoYomiStones);
+
     reportSuccess("");
 }
 

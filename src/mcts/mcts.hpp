@@ -5,14 +5,15 @@ class Mcts
 {
     public:
         Board board;
+        Timer timer;
         bool logging = true;
 
         Mcts()
         {
             board = Board(3);
             tree = SearchTree(board);
-            maxNodes = 10000;
-            timer = Timer(0, 1000, 1);
+            maxNodes = 1000000;
+            timer = Timer(0, 3, 1);
         }
 
         Tile search();
@@ -32,8 +33,9 @@ class Mcts
 
         void backprop(State result);
 
+        void genViable(std::vector<Tile>& moves);
+
         SearchTree tree;
-        Timer timer;
         std::uint64_t random = UINT64_C(2078630127);
         std::int32_t maxNodes{};
         std::vector<std::int32_t> selectionLine{};

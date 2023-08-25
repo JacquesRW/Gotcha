@@ -195,7 +195,7 @@ State Mcts::simulate()
 
     auto moves = std::vector<Tile>(0);
 
-    board.genLegal(moves);
+    genViable(moves);
 
     const auto numLegal = moves.size();
     const auto randIdx = numLegal > 1 ? getRandom() % (numLegal - 1) : 0;
@@ -229,4 +229,47 @@ void Mcts::backprop(State result)
     }
 
     tree[0].visits += 1;
+}
+
+void Mcts::genViable(std::vector<Tile>& moves)
+{
+    const auto head = board.board.moveHead();
+    for (auto move = head.first; !move.isNull(); move = board.board[move].next)
+    {
+        auto friendlyAdj = 0;
+        const auto dirs = move.getAdjacent(board.size());
+        for (auto i = 0; i < dirs.length; i++)
+        {
+            const auto offset = dirs.elements[i];
+            const auto adjTile = Tile(move.index() + offset);
+            friendlyAdj += board.board.belongsTo(adjTile) == board.sideToMove();
+        }
+
+        auto enemyDiag = 0;
+        const auto oppStm = flipColour(board.sideToMove());
+        const auto diags = move.getDiagonal(board.size());
+        for (auto i = 0; i < diags.length; i++)
+        {
+            const auto offset = diags.elements[i];
+            const auto adjTile = Tile(move.index() + offset);
+            enemyDiag += board.board.belongsTo(adjTile) == oppStm;
+        }
+
+        // skip moves that place into our own eyes
+        const auto diagLimit = static_cast<int>(dirs.length == 4);
+        if (friendlyAdj == dirs.length && enemyDiag <= diagLimit)
+            continue;
+
+        const bool isLegal = board.tryMakeMove(move);
+
+        // obviously skip illegal moves
+        if (!isLegal)
+            continue;
+
+        moves.push_back(move);
+
+        board.undoMove();
+    }
+
+    moves.push_back(Tile(1024));
 }

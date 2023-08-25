@@ -8,6 +8,7 @@ enum struct Colour : std::uint8_t
 {
     Black = 0,
     White = 1,
+    None = 2,
 };
 
 [[nodiscard]] constexpr auto flipColour(Colour colour)
@@ -81,18 +82,43 @@ class Tile
         [[nodiscard]] constexpr auto getAdjacent(std::uint16_t size) const
         {
             auto adj = Vec4{};
+            const auto file = tile % size;
+            const auto rank = tile / size;
+            const auto limit = size - 1;
 
-            if ((tile % size) > 0)
+            if (file > 0)
                 adj.push(static_cast<std::uint16_t>(-1));
 
-            if ((tile % size) < (size - 1))
+            if (file < limit)
                 adj.push(static_cast<std::uint16_t>(1));
 
-            if ((tile / size) > 0)
+            if (rank > 0)
                 adj.push(static_cast<std::uint16_t>(-size));
 
-            if ((tile / size) < (size - 1))
+            if (rank < limit)
                 adj.push(static_cast<std::uint16_t>(size));
+
+            return adj;
+        }
+
+        [[nodiscard]] constexpr auto getDiagonal(std::uint16_t size) const
+        {
+            auto adj = Vec4{};
+            const auto file = tile % size;
+            const auto rank = tile / size;
+            const auto limit = size - 1;
+
+            if (file > 0 && rank > 0)
+                adj.push(static_cast<std::uint16_t>(-size - 1));
+
+            if (file < limit && rank < limit)
+                adj.push(static_cast<std::uint16_t>(size + 1));
+
+            if (file > 0 && rank < limit)
+                adj.push(static_cast<std::uint16_t>(size - 1));
+
+            if (file < limit && rank > 0)
+                adj.push(static_cast<std::uint16_t>(-size + 1));
 
             return adj;
         }
