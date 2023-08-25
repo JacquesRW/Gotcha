@@ -7,8 +7,9 @@ Tile Mcts::search()
 {
     tree.clear(board);
 
-    while (tree.size() < capacity)
+    for (auto nodes = 0; nodes < maxNodes; nodes++)
     {
+        std::cout << tree.size() << std::endl;
         // Stage 1: Select a lead node already in the search tree.
         const auto selectedNode = selectLeaf();
 
@@ -22,6 +23,9 @@ Tile Mcts::search()
 
         // Stage 4: Backpropogate the result towards the root.
         backprop(result);
+
+        if (tree.size() >= capacity)
+            break;
     }
 
     const auto& rootNode = tree[0];
@@ -57,6 +61,29 @@ Tile Mcts::search()
     return rootNode[bestIdx].move;
 }
 
+double Mcts::getUct(const Node& node, std::uint32_t childIdx)
+{
+    if (node.visits < 4)
+        return 100.0;
+
+    const auto N = static_cast<double>(node.visits);
+
+    const auto childPtr = node[childIdx].ptr;
+
+    if (childPtr == -1)
+        return 100.0;
+
+    const auto& child = tree[childPtr];
+    const auto n = static_cast<double>(child.visits);
+
+    if (n == 0)
+        return 100.0;
+
+    const auto w = static_cast<double>(child.wins);
+
+    return w / n + std::sqrt(std::log(N) / n);
+}
+
 std::uint64_t Mcts::getRandom()
 {
     random ^= random << 13;
@@ -80,14 +107,26 @@ std::int32_t Mcts::selectLeaf()
         if (node.isTerminal())
             return -1;
 
-        const auto randomIdx = getRandom() % node.numChildren();
-        const auto next = node[randomIdx].ptr;
+        std::uint32_t bestIdx = 0;
+        double bestUct = 0.0;
+
+        for (std::uint32_t i = 0; i < node.numChildren(); i++)
+        {
+            const auto uct = getUct(node, i);
+            if (uct > bestUct)
+            {
+                bestUct = uct;
+                bestIdx = i;
+            }
+        }
+
+        const auto next = node[bestIdx].ptr;
 
         if (next == -1)
             break;
 
         // verified legal move
-        board.makeMove(node[randomIdx].move);
+        board.makeMove(node[bestIdx].move);
         selectionLine.push_back(next);
         nodePtr = next;
     }
@@ -165,4 +204,6 @@ void Mcts::backprop(State result)
 
         board.undoMove();
     }
+
+    tree[0].visits += 1;
 }
