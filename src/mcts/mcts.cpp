@@ -7,6 +7,9 @@
 Tile Mcts::search()
 {
     const auto allocatedTime = timer.alloc();
+    auto elapsed = 0;
+    auto rollouts = 0;
+    board.nodes = 0;
 
     if (logging)
         std::cout << "info allocated " << allocatedTime << "ms" << std::endl;
@@ -15,7 +18,7 @@ Tile Mcts::search()
 
     tree.clear(board);
 
-    for (auto nodes = 0; nodes < maxNodes; nodes++)
+    for (rollouts = 1; rollouts <= maxNodes; rollouts++)
     {
         // Stage 1: Select a lead node already in the search tree.
         const auto selectedNode = selectLeaf();
@@ -23,7 +26,7 @@ Tile Mcts::search()
         // Stage 2: If not a terminal node, pick a child of the leaf
         // node that isn't currently in the tree.
         if (selectedNode != -1)
-            const auto newNode = expandNode(selectedNode);
+            expandNode(selectedNode);
 
         // Stage 3: Randomly simulate the outcome of the game from there.
         const auto result = simulate();
@@ -31,13 +34,9 @@ Tile Mcts::search()
         // Stage 4: Backpropogate the result towards the root.
         backprop(result);
 
-        const auto elapsed = timer.elapsed();
+        elapsed = timer.elapsed();
         if (elapsed >= allocatedTime)
-        {
-            if (logging)
-                std::cout << "info time " << elapsed << "ms" << std::endl;
             break;
-        }
     }
 
     const auto& rootNode = tree[0];
@@ -72,10 +71,16 @@ Tile Mcts::search()
         }
     }
 
-    if (logging)
-        std::cout << "win probability: " << 100.0 * bestScore << std::endl;
-
     const auto bestMove = rootNode[bestIdx].move;
+
+    if (logging)
+    {
+        std::cout << "info time " << elapsed;
+        std::cout << " nodes " << board.nodes;
+        std::cout << " rollouts " << rollouts;
+        std::cout << " score " << 100.0 * bestScore << "%";
+        std::cout << " pv " << tileToString(bestMove, board.size()) << std::endl;
+    }
 
     timer.stop(bestMove.isNull());
 
@@ -155,7 +160,7 @@ std::int32_t Mcts::selectLeaf()
     return nodePtr;
 }
 
-std::int32_t Mcts::expandNode(const std::int32_t nodePtr)
+void Mcts::expandNode(const std::int32_t nodePtr)
 {
     auto& node = tree[nodePtr];
 
@@ -178,8 +183,6 @@ std::int32_t Mcts::expandNode(const std::int32_t nodePtr)
     nodeToExplore.ptr = tree.size() - 1;
 
     selectionLine.push_back(nodeToExplore.ptr);
-
-    return nodeToExplore.ptr;
 };
 
 State Mcts::simulate()

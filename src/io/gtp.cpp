@@ -175,6 +175,7 @@ void GtpRunner::timeSettings()
     const auto mainTime = std::stoi(mainTimeStr);
     const auto byoYomi = std::stoi(byoYomiStr);
     const auto byoYomiStones = std::stoi(byoYomiStonesStr);
+    reportSuccess("");
 }
 
 void GtpRunner::logging()

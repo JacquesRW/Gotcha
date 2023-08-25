@@ -26,7 +26,7 @@ class Mcts
 
         std::int32_t selectLeaf();
 
-        std::int32_t expandNode(std::int32_t nodePtr);
+        void expandNode(std::int32_t nodePtr);
 
         State simulate();
 
