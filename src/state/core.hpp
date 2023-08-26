@@ -50,18 +50,6 @@ enum struct Territory : std::uint8_t
     );
 }
 
-struct Vec4
-{
-    std::array<uint16_t, 4> elements;
-    std::uint16_t length;
-
-    constexpr void push(std::uint16_t element)
-    {
-        elements[length] = element;
-        length++;
-    }
-};
-
 class Tile
 {
     public:
@@ -79,52 +67,66 @@ class Tile
         [[nodiscard]] constexpr auto index() const { return tile; }
         [[nodiscard]] constexpr auto isNull() const { return tile == 1024; }
 
-        [[nodiscard]] constexpr auto getAdjacent(std::uint16_t size) const
-        {
-            auto adj = Vec4{};
-            const auto file = tile % size;
-            const auto rank = tile / size;
-            const auto limit = size - 1;
-
-            if (file > 0)
-                adj.push(static_cast<std::uint16_t>(-1));
-
-            if (file < limit)
-                adj.push(static_cast<std::uint16_t>(1));
-
-            if (rank > 0)
-                adj.push(static_cast<std::uint16_t>(-size));
-
-            if (rank < limit)
-                adj.push(static_cast<std::uint16_t>(size));
-
-            return adj;
-        }
-
-        [[nodiscard]] constexpr auto getDiagonal(std::uint16_t size) const
-        {
-            auto adj = Vec4{};
-            const auto file = tile % size;
-            const auto rank = tile / size;
-            const auto limit = size - 1;
-
-            if (file > 0 && rank > 0)
-                adj.push(static_cast<std::uint16_t>(-size - 1));
-
-            if (file < limit && rank < limit)
-                adj.push(static_cast<std::uint16_t>(size + 1));
-
-            if (file > 0 && rank < limit)
-                adj.push(static_cast<std::uint16_t>(size - 1));
-
-            if (file < limit && rank > 0)
-                adj.push(static_cast<std::uint16_t>(-size + 1));
-
-            return adj;
-        }
-
     private:
         std::uint16_t tile = 1024;
+};
+
+struct Vec4
+{
+    std::array<Tile, 4> elements;
+    std::uint16_t length;
+
+    constexpr void push(Tile element)
+    {
+        elements[length] = element;
+        length++;
+    }
+
+    [[nodiscard]] static constexpr auto getAdjacent(Tile tile, std::uint16_t size)
+    {
+        auto adj = Vec4{};
+        const auto idx = tile.index();
+        const auto file = idx % size;
+        const auto rank = idx / size;
+        const auto limit = size - 1;
+
+        if (file > 0)
+            adj.push(Tile(idx - 1));
+
+        if (file < limit)
+            adj.push(Tile(idx + 1));
+
+        if (rank > 0)
+            adj.push(Tile(idx - size));
+
+        if (rank < limit)
+            adj.push(Tile(idx + size));
+
+        return adj;
+    }
+
+    [[nodiscard]] static constexpr auto getDiagonal(Tile tile, std::uint16_t size)
+    {
+        auto adj = Vec4{};
+        const auto idx = tile.index();
+        const auto file = idx % size;
+        const auto rank = idx / size;
+        const auto limit = size - 1;
+
+        if (file > 0 && rank > 0)
+            adj.push(Tile(idx - size - 1));
+
+        if (file < limit && rank < limit)
+            adj.push(Tile(idx + size + 1));
+
+        if (file > 0 && rank < limit)
+            adj.push(Tile(idx + size - 1));
+
+        if (file < limit && rank > 0)
+            adj.push(Tile(idx - size + 1));
+
+        return adj;
+    }
 };
 
 struct LinkNode

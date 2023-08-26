@@ -237,21 +237,19 @@ void Mcts::genViable(std::vector<Tile>& moves)
     for (auto move = head.first; !move.isNull(); move = board.board[move].next)
     {
         auto friendlyAdj = 0;
-        const auto dirs = move.getAdjacent(board.size());
+        const auto dirs = Vec4::getAdjacent(move, board.size());
         for (auto i = 0; i < dirs.length; i++)
         {
-            const auto offset = dirs.elements[i];
-            const auto adjTile = Tile(move.index() + offset);
+            const auto adjTile = dirs.elements[i];
             friendlyAdj += board.board.belongsTo(adjTile) == board.sideToMove();
         }
 
         auto enemyDiag = 0;
         const auto oppStm = flipColour(board.sideToMove());
-        const auto diags = move.getDiagonal(board.size());
+        const auto diags = Vec4::getDiagonal(move, board.size());
         for (auto i = 0; i < diags.length; i++)
         {
-            const auto offset = diags.elements[i];
-            const auto adjTile = Tile(move.index() + offset);
+            const auto adjTile = diags.elements[i];
             enemyDiag += board.board.belongsTo(adjTile) == oppStm;
         }
 
