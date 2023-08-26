@@ -211,24 +211,6 @@ std::vector<Territory> BoardState::getTerritory() const
     return territory;
 }
 
-void Board::genLegal(std::vector<Tile>& moves)
-{
-    const auto head = board.moveHead();
-    for (auto move = head.first;; move = board[move].next)
-    {
-        const bool isLegal = tryMakeMove(move);
-        if (!isLegal)
-            continue;
-
-        moves.push_back(move);
-
-        undoMove();
-
-        if (move.isNull())
-            break;
-    }
-}
-
 void Board::makeMove(const Tile tile)
 {
     nodes++;

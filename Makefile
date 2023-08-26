@@ -7,4 +7,4 @@ else
 endif
 
 rule:
-	clang++ src/main.cpp src/io/*.cpp src/mcts/mcts.cpp src/state/*.cpp -o $(NAME) -O3 -DNDEBUG
+	clang++ src/main.cpp src/io/*.cpp src/mcts/mcts.cpp src/state/*.cpp -o $(NAME) -O3 -DNDEBUG -Wextra

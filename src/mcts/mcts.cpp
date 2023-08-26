@@ -43,7 +43,7 @@ Tile Mcts::search()
     auto bestIdx = 0;
     auto bestScore = 0.0;
 
-    for (auto i = 0; i < rootNode.numChildren(); i++)
+    for (std::uint32_t i = 0; i < rootNode.numChildren(); i++)
     {
         const auto move = rootNode[i];
 
