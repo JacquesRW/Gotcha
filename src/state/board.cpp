@@ -43,12 +43,11 @@ bool BoardState::placeStone(const Tile tile, Colour colour)
     auto& newGroup = groups.back();
 
     Vec4 adjEnemies{};
-    const auto dirs = tile.getAdjacent(size);
+    const auto dirs = Vec4::getAdjacent(tile, size);
 
     for (auto i = 0; i < dirs.length; i++)
     {
-        const auto offset = dirs.elements[i];
-        const auto adjTile = Tile(tile.index() + offset);
+        const auto adjTile = dirs.elements[i];
         const auto adjId = tiles[adjTile.index()].group;
 
         if (adjId != 1024)
@@ -57,7 +56,7 @@ bool BoardState::placeStone(const Tile tile, Colour colour)
             if (adjGroup.belongsTo != colour)
             {
                 adjGroup.liberties--;
-                adjEnemies.push(adjId);
+                adjEnemies.push(Tile(adjId));
             }
             else if (adjId != groupId)
                 newGroup.join(adjGroup, tiles);
@@ -71,7 +70,7 @@ bool BoardState::placeStone(const Tile tile, Colour colour)
     // Step 2: Capture surrounded enemy stones.
     for (auto i = 0; i < adjEnemies.length; i++)
     {
-        const auto adjId = adjEnemies.elements[i];
+        const auto adjId = adjEnemies.elements[i].index();
         if (groups[adjId].liberties <= 0)
             killGroup(adjId);
     }
@@ -95,12 +94,11 @@ void BoardState::killGroup(const std::uint16_t groupId)
     while (!tile.isNull())
     {
         Vec4 adj{};
-        const auto dirs = tile.getAdjacent(size);
+        const auto dirs = Vec4::getAdjacent(tile, size);
 
         for (auto i = 0; i < dirs.length; i++)
         {
-            const auto offset = dirs.elements[i];
-            const auto adjTile = Tile(tile.index() + offset);
+            const auto adjTile = dirs.elements[i];
             const auto adjId = tiles[adjTile.index()].group;
             groups[adjId].liberties++;
             adj.push(adjId);
@@ -158,12 +156,11 @@ std::vector<Territory> BoardState::getTerritory() const
         auto reachBlack = false;
         auto reachWhite = false;
 
-        const auto dirs = tile.getAdjacent(size);
+        const auto dirs = Vec4::getAdjacent(tile, size);
 
         for (auto i = 0; i < dirs.length; i++)
         {
-            const auto offset = dirs.elements[i];
-            const auto adjTile = Tile(tile.index() + offset);
+            const auto adjTile = dirs.elements[i];
 
             const auto groupId = tiles[adjTile.index()].group;
             if (groupId == 1024)
@@ -190,11 +187,10 @@ std::vector<Territory> BoardState::getTerritory() const
 
         const auto currState = territory[curr.index()];
 
-        const auto dirs = curr.getAdjacent(size);
+        const auto dirs = Vec4::getAdjacent(curr, size);
         for (auto i = 0; i < dirs.length; i++)
         {
-            const auto offset = dirs.elements[i];
-            const auto adjTile = Tile(curr.index() + offset);
+            const auto adjTile = dirs.elements[i];
             if (tiles[curr.index()].group == 1024)
             {
                 const auto oldState = territory[adjTile.index()];
@@ -209,24 +205,6 @@ std::vector<Territory> BoardState::getTerritory() const
     }
 
     return territory;
-}
-
-void Board::genLegal(std::vector<Tile>& moves)
-{
-    const auto head = board.moveHead();
-    for (auto move = head.first;; move = board[move].next)
-    {
-        const bool isLegal = tryMakeMove(move);
-        if (!isLegal)
-            continue;
-
-        moves.push_back(move);
-
-        undoMove();
-
-        if (move.isNull())
-            break;
-    }
 }
 
 void Board::makeMove(const Tile tile)
