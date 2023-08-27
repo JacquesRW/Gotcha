@@ -87,12 +87,12 @@ Tile Mcts::search()
     return bestMove;
 }
 
-double Mcts::getUct(const Node& node, std::uint32_t childIdx)
+double Mcts::getUct(const Node& node, const std::uint32_t childIdx)
 {
-    if (node.visits < 4)
-        return 100.0;
-
     const auto N = static_cast<double>(node.visits);
+
+    if (N == 0)
+        return 100.0;
 
     const auto childPtr = node[childIdx].ptr;
 

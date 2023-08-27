@@ -12,7 +12,7 @@ constexpr std::uint16_t HashSize = 2 * MaxBoardSize;
 class Zobrist
 {
     public:
-        constexpr Zobrist(std::uint64_t x, std::uint64_t y)
+        constexpr Zobrist(const std::uint64_t x, const std::uint64_t y)
         {
             upper = x;
             lower = y;
@@ -20,23 +20,23 @@ class Zobrist
 
         constexpr Zobrist() {}
 
-        [[nodiscard]] constexpr auto operator==(Zobrist other) const
+        [[nodiscard]] constexpr auto operator==(const Zobrist other) const
         {
             return (upper == other.upper) && (lower == other.lower);
         }
 
-        constexpr auto operator^=(Zobrist other)
+        constexpr auto operator^=(const Zobrist other)
         {
             upper ^= other.upper;
             lower ^= other.lower;
         }
 
-        [[nodiscard]] constexpr auto operator<<(std::uint8_t shift) const
+        [[nodiscard]] constexpr auto operator<<(const std::uint8_t shift) const
         {
             return Zobrist(upper << shift, lower << shift);
         }
 
-        [[nodiscard]] constexpr auto operator>>(std::uint8_t shift) const
+        [[nodiscard]] constexpr auto operator>>(const std::uint8_t shift) const
         {
             return Zobrist(upper >> shift, lower >> shift);
         }
@@ -52,7 +52,7 @@ class Zobrist
 
         static const std::array<Zobrist, HashSize> Hashes;
 
-        static auto hashFor(Tile tile, Colour colour)
+        static auto hashFor(const Tile tile, const Colour colour)
         {
             const auto half = MaxBoardSize * static_cast<std::uint16_t>(colour);
             return Hashes[half + tile.index()];

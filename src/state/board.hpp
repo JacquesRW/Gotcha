@@ -5,7 +5,7 @@
 
 struct Group
 {
-    Group(Tile tile, Colour colour)
+    Group(const Tile tile, const Colour colour)
     {
         belongsTo = colour;
         stones = LinkHead(tile, tile, 1);
@@ -95,11 +95,9 @@ class Board
 
         bool tryMakeMove(const Tile tile);
 
-        void setStm(Colour colour) { stm = colour; }
+        void setStm(const Colour colour) { stm = colour; }
 
-        void setKomi(float val) { komi = val; }
-
-        std::uint16_t size() const { return board.width(); }
+        void setKomi(const float val) { komi = val; }
 
         void undoMove()
         {
@@ -110,8 +108,7 @@ class Board
 
         void display(const bool showGroups) const;
 
-        std::uint64_t runPerft(uint8_t depth);
-
+        [[nodiscard]] std::uint16_t size() const { return board.width(); }
         [[nodiscard]] float getKomi() const { return komi; }
         [[nodiscard]] auto stones() const { return board.numStones(); }
         [[nodiscard]] auto sideToMove() const { return stm; }

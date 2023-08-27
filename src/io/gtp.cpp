@@ -1,5 +1,6 @@
 #include "gtp.hpp"
 #include "parse.hpp"
+#include "../util/perft.hpp"
 
 GtpRunner::GtpRunner()
 {
@@ -159,8 +160,16 @@ void GtpRunner::stones()
 void GtpRunner::perft()
 {
     const auto depth = std::stoi(storedMessage);
-    const auto count = searcher.board.runPerft(depth);
-    reportSuccess("nodes " + std::to_string(count));
+    auto perftBoard = PerftBoard(searcher.board.board, searcher.board.sideToMove());
+    auto timer = Timer(0, 0, 0);
+    timer.start();
+    const auto count = perftBoard.runPerft(depth);
+    const auto elapsed = timer.elapsed();
+    const auto nps = 1000 * count / elapsed;
+    const auto nodeStr = "nodes " + std::to_string(count);
+    const auto timeStr = " time " + std::to_string(elapsed) + " ms";
+    const auto npsStr = " nps " + std::to_string(nps);
+    reportSuccess(nodeStr + timeStr + npsStr);
 }
 
 void GtpRunner::getKomi() const

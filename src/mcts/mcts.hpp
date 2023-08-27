@@ -18,16 +18,16 @@ class Mcts
 
         Tile search();
 
-        void setNodes(std::int32_t nodes) { maxNodes = nodes; }
+        void setNodes(const std::int32_t nodes) { maxNodes = nodes; }
 
     private:
-        double getUct(const Node& node, std::uint32_t childIdx);
+        double getUct(const Node& node, const std::uint32_t childIdx);
 
         std::uint64_t getRandom();
 
         std::int32_t selectLeaf();
 
-        void expandNode(std::int32_t nodePtr);
+        void expandNode(const std::int32_t nodePtr);
 
         State simulate();
 

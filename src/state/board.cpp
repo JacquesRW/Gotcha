@@ -25,7 +25,7 @@ BoardState::BoardState(const std::uint16_t withSize)
     }
 }
 
-bool BoardState::placeStone(const Tile tile, Colour colour)
+bool BoardState::placeStone(const Tile tile, const Colour colour)
 {
     passes = 0;
     const auto stm = static_cast<std::uint8_t>(colour);
@@ -110,7 +110,7 @@ void BoardState::killGroup(const std::uint16_t groupId)
     empty.join(dying.stones, tiles);
 }
 
-State BoardState::gameState(float komi) const
+State BoardState::gameState(const float komi) const
 {
     if (!isGameOver())
         return State::Ongoing;
@@ -122,7 +122,7 @@ State BoardState::gameState(float komi) const
     return winBlack;
 }
 
-float BoardState::getScore(float komi) const
+float BoardState::getScore(const float komi) const
 {
     auto scoreBlack = stones[0];
     auto scoreWhite = stones[1];
@@ -264,37 +264,7 @@ void Board::display(const bool showGroups) const
     std::cout << "Moves Played: " << history.size() << "\n" << std::endl;
 }
 
-std::uint64_t Board::runPerft(uint8_t depth)
-{
-    if (depth == 0)
-        return 1;
-
-    if (board.isGameOver())
-        return 0;
-
-    const auto head = board.moveHead();
-    auto count = 0;
-
-    for (auto move = head.first;; move = board[move].next)
-    {
-        const bool isLegal = tryMakeMove(move);
-        if (!isLegal)
-            continue;
-
-        const auto subCount = runPerft(depth - 1);
-
-        count += subCount;
-
-        undoMove();
-
-        if (move.isNull())
-            break;
-    }
-
-    return count;
-}
-
-void BoardState::display(const bool showGroups, float komi) const
+void BoardState::display(const bool showGroups, const float komi) const
 {
     std::cout << "=\nBoard:" << std::endl;
     std::cout << "Score: " << getScore(komi) << " (komi = " << komi << ")" << std::endl;

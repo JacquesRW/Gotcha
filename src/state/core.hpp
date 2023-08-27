@@ -11,7 +11,7 @@ enum struct Colour : std::uint8_t
     None = 2,
 };
 
-[[nodiscard]] constexpr auto flipColour(Colour colour)
+[[nodiscard]] constexpr auto flipColour(const Colour colour)
 {
     return static_cast<Colour>(!static_cast<std::uint8_t>(colour));
 }
@@ -23,7 +23,7 @@ enum struct State : std::int8_t
     Win = 1,
 };
 
-[[nodiscard]] constexpr auto flipState(State state)
+[[nodiscard]] constexpr auto flipState(const State state)
 {
     return static_cast<State>(-static_cast<std::int8_t>(state));
 }
@@ -36,14 +36,14 @@ enum struct Territory : std::uint8_t
     Both = 3,
 };
 
-[[nodiscard]] constexpr auto territoryFrom(bool black, bool white)
+[[nodiscard]] constexpr auto territoryFrom(const bool black, const bool white)
 {
     const auto blackVal = static_cast<std::uint8_t>(black);
     const auto whiteVal = static_cast<std::uint8_t>(white);
     return static_cast<Territory>(blackVal + 2 * whiteVal);
 }
 
-[[nodiscard]] constexpr auto territoryMerge(Territory t1, Territory t2)
+[[nodiscard]] constexpr auto territoryMerge(const Territory t1, const Territory t2)
 {
     return static_cast<Territory>(
         static_cast<std::uint8_t>(t1) | static_cast<std::uint8_t>(t2)
@@ -53,11 +53,11 @@ enum struct Territory : std::uint8_t
 class Tile
 {
     public:
-        constexpr Tile(std::uint16_t t) { tile = t; }
+        constexpr Tile(const std::uint16_t t) { tile = t; }
 
         constexpr Tile() { tile = 1024; }
 
-        constexpr Tile(std::uint16_t x, std::uint16_t y, std::uint16_t size)
+        constexpr Tile(const std::uint16_t x, const std::uint16_t y, const std::uint16_t size)
         {
             tile = size * y + x;
         }
@@ -76,13 +76,13 @@ struct Vec4
     std::array<Tile, 4> elements;
     std::uint16_t length;
 
-    constexpr void push(Tile element)
+    constexpr void push(const Tile element)
     {
         elements[length] = element;
         length++;
     }
 
-    [[nodiscard]] static constexpr auto getAdjacent(Tile tile, std::uint16_t size)
+    [[nodiscard]] static constexpr auto getAdjacent(const Tile tile, const std::uint16_t size)
     {
         auto adj = Vec4{};
         const auto idx = tile.index();
@@ -105,7 +105,7 @@ struct Vec4
         return adj;
     }
 
-    [[nodiscard]] static constexpr auto getDiagonal(Tile tile, std::uint16_t size)
+    [[nodiscard]] static constexpr auto getDiagonal(const Tile tile, const std::uint16_t size)
     {
         auto adj = Vec4{};
         const auto idx = tile.index();
